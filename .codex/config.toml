@@ -1,0 +1,7 @@
+# Codex 프로젝트 설정
+# 서브에이전트 정의는 .codex/agents/*.toml, 역할 진실 소스는 shared/agent-roles.md
+
+[agents]
+max_threads = 6   # 동시 오픈 스레드 (기본 6)
+max_depth = 1     # 중첩 깊이, 루트=0 (기본 1) — 서브의 서브 금지
+# job_max_runtime_seconds = 1800

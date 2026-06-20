@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Office — 하네스 설계 공유</title>
+<style>
+  :root{--bg:#eef3ee;--panel:#fff;--ink:#1f2a24;--sub:#6b7280;--line:#dde7df;--rug:#e7efe8;--accent:#267F53;
+    --high:#6d5dc4;--mid:#4f7cc4;--low:#7b8794;--book:#caa46a;--book2:#8fae8f;--gate:#c2562e;--purple:#5b4ba8}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:var(--bg);color:var(--ink);min-height:100vh;overflow-y:auto;display:flex;flex-direction:column;font-size:15px}
+  header{padding:10px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--panel)}
+  header h1{font-size:15px;margin:0;font-weight:800}
+  header .tag{font-size:12px;color:var(--sub)}
+  .flows{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto}
+  .flowbtn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 12px;border-radius:10px;font-size:14px;cursor:pointer;font-weight:700;transition:.15s}
+  .flowbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .flowbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .flowbtn.reset{font-weight:500;color:var(--sub)}
+  .topbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer;font-weight:700;font-size:12.5px;color:#3c5547}
+  .topbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+  .stage{padding:12px 16px 6px;flex:1;min-height:440px;display:flex}
+  .office{position:relative;flex:1;min-height:0;border-radius:16px;overflow:hidden;border:2px solid #cfdcd1;background:#eef3ee;
+    background-image:linear-gradient(#e3ebe4 1px,transparent 1px),linear-gradient(90deg,#e3ebe4 1px,transparent 1px);background-size:30px 30px;box-shadow:0 6px 18px rgba(40,70,55,.08)}
+  .zone{position:absolute;border-radius:14px;background:var(--rug);border:1px dashed #cdddcf}
+  .zone span{position:absolute;top:6px;left:0;right:0;text-align:center;font-size:11px;color:#6b7280;font-weight:700}
+  svg.paths{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+  .char{position:absolute;transform:translate(-50%,-50%);z-index:4;cursor:pointer;text-align:center;width:96px;transition:filter .2s,transform .2s}
+  .char .av{width:38px;height:46px;margin:0 auto;position:relative;filter:drop-shadow(0 2px 2px rgba(0,0,0,.15))}
+  .char .head{width:23px;height:23px;border-radius:50%;margin:0 auto;border:2px solid rgba(255,255,255,.85)}
+  .char .body{width:31px;height:23px;border-radius:9px 9px 5px 5px;margin:-4px auto 0;border:2px solid rgba(255,255,255,.7)}
+  .char .nm{font-size:12px;font-weight:800;margin-top:2px;line-height:1.15;color:#283b31;background:rgba(255,255,255,.88);border-radius:6px;padding:1px 5px;display:inline-block}
+  .char .tg{font-size:11px;color:#1f2a24;margin-top:2px;line-height:1.2;font-weight:600}
+  .char .rw{font-size:9px;color:#fff;border-radius:5px;padding:0 4px;position:absolute;top:-6px;right:28px;font-weight:800}
+  .char .mdl{font-size:8.5px;color:#1f2a24;background:rgba(255,255,255,.85);border-radius:4px;padding:0 3px;position:absolute;top:-6px;left:28px;font-weight:700}
+  .char:hover{filter:brightness(1.06)}
+  .char.dim{opacity:.25;filter:grayscale(.55)}
+  .char.active{transform:translate(-50%,-50%) scale(1.08)}
+  .char.active .head{box-shadow:0 0 0 6px rgba(38,127,83,.32)}
+  .char.active .nm{background:var(--accent);color:#fff}
+  .order{position:absolute;top:-12px;left:24px;width:23px;height:23px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:800;line-height:23px;border:2px solid #fff;z-index:6}
+  .gatenode{position:absolute;transform:translate(-50%,-50%);z-index:8;background:#fff;border:2px solid var(--gate);color:var(--gate);font-size:12px;font-weight:800;padding:6px 11px;border-radius:20px;box-shadow:0 4px 10px rgba(0,0,0,.15);display:none}
+  .gatenode.show{display:block;animation:pop .3s}
+  @keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+  .bottom{padding:4px 16px 12px;display:flex;flex-direction:column;gap:8px}
+  .flowpanel{display:none;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:0 4px 12px rgba(40,70,55,.06)}
+  .flowpanel.show{display:block;animation:slideup .25s}
+  @keyframes slideup{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .flowpanel .ttl{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .flowpanel h2{margin:0;font-size:17px}
+  .flowpanel .d{font-size:12px;color:var(--sub)}
+  .flowpanel .src{font-size:11px;color:var(--purple);background:#f1eefa;border-radius:6px;padding:2px 7px;font-weight:700}
+  .flowpanel .replay{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 11px;font-size:13px;cursor:pointer;font-weight:700}
+  .flowpanel .replay:hover{border-color:var(--accent);color:var(--accent)}
+  .gobtn{margin-left:auto;border:none;background:var(--accent);color:#fff;border-radius:9px;padding:8px 16px;font-size:14px;font-weight:800;cursor:pointer;animation:pulse 1.2s infinite}
+  .gobtn:hover{filter:brightness(1.08)}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(38,127,83,.45)}50%{box-shadow:0 0 0 7px rgba(38,127,83,0)}}
+  .fstep.done{opacity:.65}.fstep.done .num{background:#cfe0d5;color:#3c5547}
+  .fstep.waiting{border-color:var(--gate);box-shadow:0 0 0 2px rgba(194,86,46,.28)}
+  .fsteps{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;align-items:stretch}
+  .fstep{flex:none;min-width:150px;max-width:188px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#f8faf8;transition:.2s}
+  .fstep.on{background:#eef6f0;border-color:var(--accent);box-shadow:0 0 0 2px rgba(38,127,83,.18)}
+  .fstep.gate{background:#fbf0ea;border-color:#eccdbf}
+  .farrow{flex:none;align-self:center;color:#b9c7bd;font-weight:800}
+  .fstep .top{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+  .fstep .num{width:24px;height:24px;border-radius:50%;background:#e7efe8;color:#3c5547;font-weight:800;font-size:13px;line-height:24px;text-align:center;flex:none}
+  .fstep.on .num{background:var(--accent);color:#fff}
+  .fstep.gate .num{background:#f7e7e0;color:var(--gate)}
+  .fstep .who{font-weight:800;font-size:15px}
+  .fstep .mtag{font-size:10px;font-weight:700;color:var(--purple);background:#f1eefa;border-radius:5px;padding:1px 5px}
+  .fstep .meta{font-size:10.5px;color:#6b7280;font-weight:700}
+  .fstep .desc{font-size:13px;color:#1f2a24;line-height:1.45}
+
+  .shelf{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 11px;display:flex;align-items:center;gap:11px}
+  .shelf .lab{font-size:14px;font-weight:800;flex:none}
+  .shelf .lab small{display:block;font-weight:500;color:var(--sub);font-size:11px}
+  .books{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px}
+  .book{flex:none;display:inline-flex;align-items:center;padding:6px 11px;border:1px solid var(--line);border-left:4px solid var(--book2);border-radius:7px;cursor:pointer;font-size:14px;font-weight:700;color:#1f2a24;background:#fff;white-space:nowrap;transition:.15s}
+  .book:hover{border-color:var(--accent);color:var(--accent)}
+  .book.b-bp{border-left-color:var(--book)}.book.b-pattern{border-left-color:var(--book2)}.book.b-todo{opacity:.6}
+
+  .overlay{position:fixed;inset:0;background:rgba(20,35,28,.5);backdrop-filter:blur(3px);display:none;z-index:50;padding:20px;overflow:auto}
+  .overlay.show{display:grid;place-items:center}
+  .modal{width:min(600px,94vw);box-sizing:border-box;max-height:88vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:mpop .22s}
+  .mhead,.mbody{box-sizing:border-box;width:100%}
+  @keyframes mpop{from{transform:scale(.92) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .mhead{padding:22px 24px 16px;border-bottom:1px solid var(--line);position:relative;background:linear-gradient(180deg,#f6f9f6,#fff)}
+  .mhead.skill{background:linear-gradient(180deg,#f8f3ea,#fff)}
+  .mhead.note{background:linear-gradient(180deg,#f1eefa,#fff)}
+  .mhead .kicker{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--sub)}
+  .mhead h2{margin:4px 0 0;font-size:25px;font-weight:800}
+  .mhead .sub{font-size:14.5px;color:#1f2a24;margin-top:6px;line-height:1.5}
+  .x{position:absolute;top:16px;right:18px;border:1px solid var(--line);background:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;color:var(--sub)}
+  .x:hover{border-color:var(--gate);color:var(--gate)}
+  .mbody{padding:18px 24px 24px}
+  .mchips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+  .chip{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:700}
+  .chip.tier{color:#fff}.chip.rw{background:#eef3ee;color:#3c5547;border:1px solid #d6e3d8}
+  .chip.mdl{background:#f1eefa;color:var(--purple);border:1px solid #e3dcf5}
+  .chip.cat{background:#f3f6f3;color:#3c5547;border:1px solid #e0e8e1}
+  .chip.mcp{background:#eaf3fb;color:#2f6dac;border:1px solid #cfe4f5}
+  .chip.star{background:#fbf0ea;color:var(--gate);border:1px solid #f0d6c9}
+  .msec{font-size:12px;font-weight:800;color:#6b7280;letter-spacing:.5px;text-transform:uppercase;margin:20px 0 9px}
+  .core{font-size:16px;font-weight:700;color:#1f2a24;line-height:1.5;background:#f3f8f4;border:1px solid #e0ece3;border-radius:11px;padding:12px 14px}
+  ul.cont{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  ul.cont li{font-size:15px;line-height:1.6;color:#1f2a24;padding-left:20px;position:relative}
+  ul.cont li::before{content:'';position:absolute;left:3px;top:8px;width:7px;height:7px;border-radius:2px;background:var(--accent)}
+  ul.cont li.todo{color:#6b7280}ul.cont li.todo::before{background:#c3cdc6}
+  ul.cont li.star::before{background:var(--gate)}
+  ul.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  ul.rules li{font-size:14.5px;line-height:1.55;color:#1f2a24;padding-left:18px;position:relative}
+  ul.rules li::before{content:'✓';position:absolute;left:0;top:0;color:var(--accent);font-weight:800;font-size:12px}
+  ul.rules.global li::before{content:'★';color:var(--purple)}
+  .readers,.booklist{display:flex;flex-wrap:wrap;gap:7px}
+  .pill{font-size:14px;padding:7px 12px;border-radius:9px;background:#f3f6f3;border:1px solid #e3ebe4;cursor:pointer;font-weight:600}
+  .pill:hover{border-color:var(--accent);color:var(--accent)}
+  .pill.flat{cursor:default}
+  .pill .dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .srcline{font-size:12px;color:var(--sub);margin-top:8px}.srcline a{color:var(--accent)}
+  .note-grid{display:flex;flex-direction:column;gap:14px}
+  .nrow{border:1px solid #e6efe7;border-radius:12px;padding:12px 14px;background:#fafcfa}
+  .nrow h4{margin:0 0 5px;font-size:14.5px}
+  .nrow p{margin:0;font-size:14px;color:#1f2a24;line-height:1.6}
+  .agroup{border:1px solid #e6efe7;border-radius:12px;padding:12px 14px;background:#fafcfa}
+  .agroup .ah{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .agroup h4{margin:0;font-size:14.5px}
+  .who-tag{font-size:11.5px;font-weight:700;color:var(--purple);background:#f1eefa;border:1px solid #e3dcf5;border-radius:6px;padding:2px 8px}
+  ul.checks{list-style:none;margin:4px 0 0;padding:0}
+  ul.checks li{display:flex;gap:10px;font-size:14px;line-height:1.5;color:#1f2a24;padding:7px 0;border-top:1px solid #eef2ef}
+  ul.checks li:first-child{border-top:0}
+  ul.checks .box{width:18px;height:18px;border:2px solid #b9c7bd;border-radius:5px;flex:none;margin-top:1px}
+  @media(max-width:720px){.stage{padding:10px}.char{width:84px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Agent Office</h1>
+  <span class="tag">팀에 공유하는 agent · 하네스 설계 보드</span>
+  <button class="topbtn" id="noteBtn">설계 노트</button>
+  <button class="topbtn" id="agendaBtn" style="border-color:var(--gate);color:var(--gate)">확정 안건</button>
+  <div class="flows" id="flows"></div>
+  <button class="topbtn" id="helpBtn">?</button>
+</header>
+
+<div class="stage">
+  <div class="office" id="office">
+    <div id="zones"></div>
+    <svg class="paths" id="paths"><defs><marker id="ah" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#267F53"/></marker></defs></svg>
+    <div class="gatenode" id="gate">⏸ 사용자 확인</div>
+  </div>
+</div>
+
+<div class="bottom">
+  <div class="flowpanel" id="flowpanel"></div>
+  <div class="shelf"><div class="lab">참고서<small>Skills · 클릭</small></div><div class="books" id="books"></div></div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<script>
+const TIER={high:{c:'var(--high)',n:'높음 · 설계/판단',claude:'opus',codex:'high'},mid:{c:'var(--mid)',n:'중간 · 구현',claude:'sonnet',codex:'medium'},low:{c:'var(--low)',n:'낮음 · 탐색/정리',claude:'haiku',codex:'low'}};
+const GLOBAL=['모호하면 추측하지 말고 멈춰서 사용자에게 질문','미정(TODO) 영역 건드리면 진행 전 묻고 문서에 기록','위험 경로(인증·결제)·커밋/푸시·배포 직전 사용자 확인(게이트)'];
+const SHARED=['domain · 도메인','conventions · 코딩 규칙','review-standard · 리뷰 기준','git-flow · 브랜치·PR'];
+
+const AGENTS={
+  planner:{name:'planner',tag:'설계·계획',tier:'high',rw:'읽기',pos:{x:50,y:12},skills:[],
+    key:['코드를 쓰기 전에 "왜 필요한가·범위는·어떤 기술로"를 정리하는 사람','Why(가치)·Spec(범위)·Tech(기술 비교) 3관점 분석 + 트레이드오프 명시','결정을 대신 내리지 않고 옵션·근거를 제시 — 최종 선택과 미정 영역은 사용자에게 질문','모델 최상위(opus/high) — 판단·설계가 핵심이라'],
+    rules:['코드 작성 금지','Why/Spec/Tech 관점 + 트레이드오프 명시','미정 영역은 옵션 제시 후 사용자에게 질문']},
+  explorer:{name:'explorer',tag:'빠른 탐색·수정X',tier:'low',rw:'읽기',pos:{x:12,y:30},skills:[],
+    key:['"그 코드 어디 있어? 이거 바꾸면 어디 영향 가?"에 빠르게 답하는 정찰','읽기 전용 — 파일을 절대 수정하지 않음 (조사와 변경을 분리)','결론만 간결히, 파일 통째 덤프 금지','가장 가벼운 모델(haiku/low)로 속도·비용 최적 — 누락 0 전수 검색은 auditor 담당'],
+    rules:['파일 수정 금지 (읽기 전용)','결론만 간결히, 파일 덤프 금지','누락 제로 전수 검색은 auditor에 위임']},
+  auditor:{name:'auditor',tag:'전수·누락0',tier:'mid',rw:'읽기',pos:{x:12,y:55},skills:[],
+    key:['"하나도 빠짐없이" 모든 사용처·영향처를 누락 없이 모으는 감사','explorer와 차이: 빠름보다 완전성 — ALL 검색 후 재검색으로 누락 확인','목록만 만들고 변경은 안 함 → 일괄 변경은 구현 agent에 위임','디자인 통일·필드 리네임 등 "전부 바꾸기" 직전에 사용'],
+    rules:['수정 금지 — 목록만','ALL 파일 검색 후 재검색으로 누락 확인','일괄 변경은 구현 agent에 위임']},
+  'bug-investigator':{name:'bug-investigator',tag:'근본원인',tier:'high',rw:'읽기',pos:{x:12,y:82},skills:['api-patterns'],
+    key:['버그의 진짜 원인(root cause)을 끝까지 추적하는 탐정','방어적 fallback으로 덮지 않음 — 증상이 아니라 원인부터','프론트인지 외부 Spring인지 어디가 문제인지 판단해 보고','코드는 안 고침 — 수정은 구현 agent에 위임 (조사/수정 분리)'],
+    rules:['코드 수정 금지','방어적 fallback 추측 금지 — root cause 먼저','프론트/외부 Spring 어디 문제인지 판단','수정은 구현 agent에 위임']},
+  'api-developer':{name:'api-developer',tag:'API·Spring맞춤',tier:'mid',rw:'쓰기',pos:{x:38,y:40},skills:['api-patterns','backend-api-reference','data-fetching','typescript-strict'],
+    key:['프론트의 API 레이어(keys·queries·mutations·types)를 만드는 사람','백엔드는 외부 Spring(별도 레포) — 스펙을 읽고 맞출 뿐 상상해서 만들지 않음','스펙이 없거나 모호하면 멈추고 질문 (틀린 API를 지어내는 것 차단)','화면·컴포넌트는 안 건드림 — 그건 frontend-dev'],
+    rules:['백엔드 상상 금지 — Spring 스펙대로','스펙 없으면 멈추고 질문','페이지·컴포넌트는 건드리지 않음']},
+  'frontend-dev':{name:'frontend-dev',tag:'화면 구현',tier:'mid',rw:'쓰기',pos:{x:55,y:40},skills:['api-patterns','frontend-design','form-patterns','tailwind-v4','typescript-strict','nextjs-app-router','accessibility','web-performance'],
+    key:['화면·로직을 실제로 구현하는 주력 개발자','모바일 퍼스트: 무프리픽스=모바일, md:부터 데스크탑 (p-4 md:p-6)','로딩/에러/빈 상태 3종을 항상 처리 — 가장 자주 빠지는 곳','경계: API 훅·타입은 api-developer, Figma 변환은 figma-implementer · 요청한 것만 변경'],
+    rules:['모바일 퍼스트(무프리픽스/md:)','로딩/에러/빈 상태 3종 처리','API 훅·타입은 api-developer, Figma는 figma-implementer','요청한 것만 변경']},
+  'figma-implementer':{name:'figma-implementer',tag:'Figma→코드',tier:'mid',rw:'쓰기',pos:{x:38,y:66},skills:['figma-bridge','frontend-design','tailwind-v4','accessibility'],mcp:'Figma MCP',
+    key:['Figma 디자인을 코드로 옮기는 전담 (frontend-dev와 분리한 이유 = Figma는 별도 규율 필요)','Figma MCP로 노드·Variables를 직접 읽어 구현','토큰은 Figma→Tailwind @theme 자동 생성, 화이트리스트 밖 raw 값([13px]·#hex) 금지','핵심: MCP가 값을 못 가져오면 추측하지 말고 멈춤(게이트) — 상상코딩을 구조로 차단'],
+    rules:['Figma MCP로 노드/토큰 읽기','토큰 화이트리스트 안 값만 — raw/arbitrary value 금지','MCP가 못 가져온 값은 추측 금지 → 게이트','매핑 안 되는 변수는 실패 처리']},
+  'test-writer':{name:'test-writer',tag:'테스트·E2E',tier:'mid',rw:'쓰기',pos:{x:55,y:66},skills:['test-strategy','playwright-e2e','vitest'],
+    key:['AI-native 테스트 — 직접 작성·실행하고 실패하면 고치는 self-healing','유닛=Vitest, E2E=Playwright (핵심 사용자 흐름 + 위험 경로 위주)','테스트는 구현이 아니라 요구사항(스펙)을 검증 — 동어반복 테스트 금지','위험 경로 변경은 테스트 통과가 머지 게이트 (별도 플로우가 아니라 게이트로 박음)'],
+    rules:['요구사항(스펙) 검증 — 구현 베낀 동어반복 테스트 금지','E2E는 핵심 흐름+위험 경로 (Playwright)','위험 경로 변경은 테스트 통과를 게이트로']},
+  'code-reviewer':{name:'code-reviewer',tag:'리뷰 게이트',tier:'high',rw:'읽기',pos:{x:86,y:32},skills:['api-patterns','frontend-design','typescript-strict','accessibility','web-performance'],
+    key:['팀 공통 게이트키퍼 — Claude든 Codex든 누가 짠 코드도 같은 잣대','review-standard 고정 템플릿으로 출력 (Critical/Warning/Suggestion/자동수정)','필수 체크: any·barrel·모바일 퍼스트·hooks 순서·3종 상태·API 네이밍·시크릿·토큰 밖 값·범위 일탈','자동 수정할 건 고치고 나머지는 flag, 머지 차단은 Critical만 (CI 하드블록 X)','최상위 모델 — 미묘한 버그를 잡아야 하므로'],
+    rules:['review-standard 고정 템플릿으로 출력','필수 체크: any/barrel/모바일/hooks/3종 상태/네이밍/시크릿/raw값/범위','자동 수정+flag, 머지 차단은 Critical만','Codex가 짠 코드도 동일 잣대']},
+  'design-reviewer':{name:'design-reviewer',tag:'디자인 검수',tier:'high',rw:'읽기',pos:{x:86,y:58},skills:['figma-bridge','frontend-design'],
+    key:['구현이 Figma 스펙과 맞는지 검수 (구현은 직접 안 함)','간격·색·폰트·반응형 브레이크포인트 일치 확인','토큰 화이트리스트 밖 raw/arbitrary value 검출 — figma-implementer 결과를 검증'],
+    rules:['구현 안 함','Figma 스펙 일치(간격·색·폰트·반응형) 검토','토큰 밖 raw/arbitrary value 검출']},
+  'diff-organizer':{name:'diff-organizer',tag:'커밋·PR',tier:'low',rw:'쓰기',pos:{x:86,y:84},skills:[],
+    key:['공동작업 안전을 책임지는 정리원','작업 브랜치에서만 작업 → rebase → --force-with-lease → PR','공유 루트(main/dev) force push 절대 금지','rebase 충돌은 자동으로 합치지 않고 사용자에게 물어봄'],
+    rules:['작업 브랜치만 — 공유 루트 force push 금지','rebase 충돌 시 자동 해결 금지, 사용자에게 질문','--force-with-lease만 사용','커밋/푸시 전 게이트']},
+};
+
+const SKILLS={
+  'api-patterns':{cat:'pattern',d:'프론트 API 레이어 패턴 (외부 Spring 직접 호출)',contents:['폴더 구조: apis/[domain]/ — keys·queries·mutations·types','Query 훅 useGet[Resource]API / Mutation use[Action][Resource]API','queryKey는 keys.ts 팩토리에서만 (인라인 배열 금지)','에러는 ApiError throw + 타입 가드로 분기','any 금지',{t:'HTTP 클라이언트(ky/fetch/axios)는 미정',todo:1}]},
+  'data-fetching':{cat:'pattern',d:'서버 상태 관리·캐싱·무효화 (미정)',contents:[{t:'서버 상태 라이브러리 미정 (TanStack Query? SWR?)',todo:1},{t:'캐싱/무효화 전략',todo:1},{t:'클라 상태 도구(Zustand?) 선택 기준',todo:1},'→ 백엔드와 논의 후 확정']},
+  'frontend-design':{cat:'pattern',d:'디자인 구현 가이드 (진실 소스=Figma)',contents:['디자인 시스템 진실 소스 = Figma + 디자이너 가이드','모바일 퍼스트: 무프리픽스=모바일(sm), md: 데스크탑 (p-4 md:p-6)','토큰 화이트리스트만 — raw/arbitrary value 금지','로딩/에러/빈 상태 3종 항상 처리',{t:'컴포넌트 라이브러리·타겟 사용자·PWA 전략은 미정',todo:1}]},
+  'form-patterns':{cat:'pattern',d:'폼 — react-hook-form + zod',contents:['zod 스키마는 schema.ts로 분리','zodResolver로 rhf 연결, 복합 검증은 .refine 체이닝','서버 유효성(중복 체크 등)을 폼 에러로 통합','라벨·에러 접근성 연결, 메시지 한국어']},
+  'figma-bridge':{cat:'pattern',mcp:1,d:'Figma MCP → 코드 규율 (상상코딩 차단)',contents:['Figma MCP로 노드·Variables 읽기','토큰 자동 생성: Figma Variables → Tailwind @theme (수동 입력 X)','매핑 안 되는 변수 → 추측 금지, 실패(에러) 처리','화이트리스트 안 값만 — raw hex·arbitrary value([13px]) 금지','MCP가 값 못 가져오면 구현 금지 → 게이트(스펙 요청)']},
+  'backend-api-reference':{cat:'pattern',d:'외부 Spring API 스펙 읽기 (백엔드 상상 금지)',contents:['백엔드는 외부 Spring(별도 레포) — 여기선 읽기만','엔드포인트·DTO·에러 포맷을 스펙대로 (상상 금지)','스펙 모호하면 멈추고 질문','프론트↔백 타입 단일 소스 (drift 방지)',{t:'스펙 위치·인증·에러 포맷은 미정',todo:1}]},
+  'test-strategy':{cat:'pattern',d:'AI-native 테스트 전략',contents:['구현이 아니라 요구사항(스펙)을 검증 — 동어반복 금지','유닛 Vitest / E2E Playwright (핵심 흐름+위험 경로)','실패 로그 읽고 수정하는 self-healing 루프','위험 경로 변경 → 테스트 통과를 머지 게이트로','CI 하드블록 X, 리뷰는 빡세게']},
+  'tailwind-v4':{cat:'bp',src:['Tailwind 공식','https://tailwindcss.com/docs/theme'],d:'Tailwind CSS v4 — CSS-first @theme',contents:['CSS-first @theme로 토큰 정의 (config 파일 X)','@theme 변수 = CSS 변수 + 유틸 자동 생성','네임스페이스: --color-* / --spacing-* / --text-* ...','토큰만 사용, arbitrary value(bg-[#…]) 회피','색은 oklch, 커스텀 CSS도 var(--color-…) 참조']},
+  'typescript-strict':{cat:'bp',d:'TypeScript strict 안전 패턴',contents:['any 금지 — unknown + 타입 가드로 좁히기','as 단언 최소화, 판별 유니온으로 상태 모델링','유틸 타입 Pick/Omit/Partial/Record 활용','satisfies로 리터럴 추론 유지 + 체크','strictNullChecks·noUncheckedIndexedAccess 권장']},
+  'nextjs-app-router':{cat:'bp',src:['Next.js 공식','https://nextjs.org/docs'],d:'Next.js App Router (Spring-aware)',contents:['공식 기본 = Server Component','Server 적합: 소스 가까운 fetch, 시크릿 숨김, JS↓, FCP↑','Client(use client): state/이벤트/useEffect/브라우저 API/Context','우리 제약(외부 Spring+httpOnly): SSR 가능하나 상호작용·캐싱은 Client가 단순','Server 유리: 정적 공개 페이지, generateMetadata(SEO)',{t:'렌더링 전략(SSR/SC/BFF)은 TODO — planner 토론',todo:1}]},
+  'playwright-e2e':{cat:'bp',src:['Playwright 공식','https://playwright.dev/docs/best-practices'],d:'Playwright E2E best practice',contents:['user-facing locator: getByRole(name) — XPath/CSS 클래스 회피','web-first assertion: toBeVisible()(자동 대기), isVisible() 즉시 체크 금지','테스트 격리: 독립 스토리지, beforeEach/setup project','외부 사이트 의존 금지 → Network API 모킹','CI: 필요한 브라우저만, 샤딩, no-floating-promises 린트']},
+  'vitest':{cat:'bp',d:'Vitest 유닛 테스트',contents:['*.test.ts 또는 __tests__/, AAA 구조','vi.mock/vi.fn/vi.spyOn — 과한 모킹 지양','비동기 await + expect().resolves/rejects','컴포넌트는 Testing Library + jsdom/happy-dom','커버리지 v8 — 숫자보다 위험 경로 우선']},
+  'web-performance':{cat:'bp',star:1,src:['web.dev 공식','https://web.dev/articles/vitals'],d:'웹 성능 — Core Web Vitals (★직접 검토 초안)',contents:['LCP ≤ 2.5s: TTFB↓, 렌더 차단 제거, above-fold 우선','INP ≤ 200ms: JS 실행↓, 긴 task 분할','CLS ≤ 0.1: 공간 예약, transform 애니메이션','이미지 크기 지정, 폰트 swap/preload',{t:'★직접 검토·보강 권장',star:1}]},
+  'accessibility':{cat:'bp',star:1,src:['WCAG'],d:'웹 접근성 a11y (★직접 검토 초안)',contents:['시맨틱 HTML 우선 (button/a/nav/heading)','키보드: Tab·Enter/Space·focus-visible·포커스 트랩','이미지 alt, 폼 label 연결 + aria 에러','색 대비 4.5:1, 색에만 의존 X','모바일 터치 타겟 ≥44px',{t:'★직접 검토·보강 권장',star:1}]},
+  'vercel-react-best-practices':{cat:'bp',d:'React/Next 성능 룰셋',contents:['렌더: 불필요 리렌더 방지 (memo·derived·functional setState)','번들: 동적 import, barrel 회피, 서드파티 defer','데이터: 병렬화, Suspense 경계, await defer',{t:'전체 rules/ 룰셋 채우기 + Server/Client 규칙 보강',todo:1}]},
+};
+
+// 플로우: CLAUDE.md에서 정의됨. 테스트는 별도 플로우가 아니라 위험경로 '게이트'.
+const FLOWS={
+  S:{label:'S 플로우',desc:'작고 명확한 변경 — 바로 진행',steps:[{a:'explorer',t:'기존 코드·패턴 빠르게 확인'},{a:'frontend-dev',t:'변경 요약 1줄 후 바로 구현'}]},
+  M:{label:'M 플로우',desc:'파일 3~5개 — 탐색→구현→리뷰',steps:[{a:'explorer',t:'관련 코드·영향 범위 탐색'},{a:'frontend-dev',t:'기존 패턴 따라 구현'},{a:'code-reviewer',t:'리뷰 — Critical 시 수정 후 재리뷰(최대 2회)',loop:1}]},
+  L:{label:'L 플로우',desc:'새 기능·설계 — 풀 절차',steps:[{a:'planner',t:'기획·기술 결정',par:1},{a:'explorer',t:'영향 범위 조사',par:1},{gate:'사용자 확인'},{a:'frontend-dev',t:'구현'},{a:'test-writer',t:'테스트 작성·실행 (위험경로면 통과가 게이트)'},{a:'code-reviewer',t:'리뷰 + 빌드',loop:1},{a:'diff-organizer',t:'(요청 시) 커밋 정리·PR'}]},
+  '신규화면':{label:'신규 화면 (Figma)',desc:'디자이너 있음 — Figma 기반',steps:[{gate:'Figma 확정?'},{a:'figma-implementer',t:'Figma→코드 (Figma MCP·토큰 화이트리스트)'},{a:'design-reviewer',t:'Figma 스펙 일치·토큰 위반 검토'},{a:'test-writer',t:'핵심 흐름 E2E (Playwright)'},{a:'code-reviewer',t:'코드 리뷰',loop:1}]},
+  Bug:{label:'Bug 플로우',desc:'에러·버그',steps:[{a:'bug-investigator',t:'근본 원인 추적 (수정 X)'},{a:'frontend-dev',t:'원인 위치 수정'},{a:'test-writer',t:'재발 방지 테스트'},{a:'code-reviewer',t:'리뷰'}]},
+  '전수검색':{label:'전수검색',desc:'하나도 빠짐없이',steps:[{a:'auditor',t:'누락 제로 전수 목록'},{a:'frontend-dev',t:'일괄 변경'},{a:'code-reviewer',t:'리뷰'}]},
+};
+
+const office=document.getElementById('office'),paths=document.getElementById('paths'),gateEl=document.getElementById('gate'),
+  flowpanel=document.getElementById('flowpanel'),overlay=document.getElementById('overlay'),modal=document.getElementById('modal');
+let timers=[];
+
+[{x:3,y:18,w:18,h:80,t:'탐색·조사'},{x:30,y:26,w:40,h:60,t:'구현존'},{x:76,y:20,w:21,h:78,t:'리뷰·정리'},{x:37,y:2,w:26,h:16,t:'기획'}]
+ .forEach(z=>{const d=document.createElement('div');d.className='zone';d.style.cssText=`left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%`;d.innerHTML=`<span>${z.t}</span>`;document.getElementById('zones').appendChild(d);});
+
+const charEls={};
+for(const id in AGENTS){const a=AGENTS[id],tc=TIER[a.tier].c;const el=document.createElement('div');el.className='char';el.style.left=a.pos.x+'%';el.style.top=a.pos.y+'%';
+  el.innerHTML=`<div class="av"><div class="head" style="background:${tc}"></div><div class="body" style="background:${tc};filter:brightness(.85)"></div><div class="mdl">${TIER[a.tier].claude}</div><div class="rw" style="background:${a.rw==='쓰기'?'#c2562e':'#3c8a63'}">${a.rw}</div></div><div class="nm">${a.name}</div><div class="tg">${a.tag}${a.mcp?' · MCP':''}</div>`;
+  el.onclick=()=>openAgent(id);office.appendChild(el);charEls[id]=el;}
+
+const ordered=['frontend-design','api-patterns','form-patterns','figma-bridge','backend-api-reference','test-strategy','data-fetching','tailwind-v4','typescript-strict','nextjs-app-router','playwright-e2e','vitest','vercel-react-best-practices','web-performance','accessibility'];
+ordered.forEach(id=>{const s=SKILLS[id];const b=document.createElement('div');b.className='book '+(s.cat==='bp'?'b-bp':'b-pattern')+(id==='data-fetching'?' b-todo':'');b.textContent=id;b.onclick=()=>openSkill(id);document.getElementById('books').appendChild(b);});
+
+function dot(id){return SKILLS[id].cat==='bp'?'var(--book)':'var(--book2)';}
+function liCont(c){if(typeof c==='string')return `<li>${c}</li>`;return `<li class="${c.todo?'todo':''}${c.star?' star':''}">${c.t}</li>`;}
+function openModal(html){modal.innerHTML=html;overlay.classList.add('show');}
+function closeModal(){overlay.classList.remove('show');}
+overlay.onclick=e=>{if(e.target===overlay)closeModal();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function openAgent(id){const a=AGENTS[id],t=TIER[a.tier];
+  const own=a.skills.length?a.skills.map(s=>`<span class="pill" onclick="openSkill('${s}')"><span class="dot" style="background:${dot(s)}"></span>${s}</span>`).join(''):'<span style="font-size:13px;color:var(--sub)">전용 참고서 없음 — 공통 참고서만으로 일함</span>';
+  openModal(`<div class="mhead"><button class="x" onclick="closeModal()">✕</button>
+    <div class="kicker">직원 · 서브에이전트</div><h2>${a.name}</h2><div class="sub">${a.tag}</div>
+    <div class="mchips" style="margin-top:12px"><span class="chip tier" style="background:${t.c}">${t.n}</span><span class="chip rw">${a.rw} 전용</span><span class="chip mdl">Claude ${t.claude} · Codex ${t.codex}</span>${a.mcp?`<span class="chip mcp">🔌 ${a.mcp}</span>`:''}</div></div>
+  <div class="mbody">
+    <div class="msec">이 직원의 핵심</div><ul class="cont">${a.key.map(k=>`<li>${k}</li>`).join('')}</ul>
+    <div class="msec">지키는 룰·경계</div><ul class="rules">${a.rules.map(r=>`<li>${r}</li>`).join('')}</ul>
+    <div class="msec">공통 참고서 (전원 항상)</div><div class="booklist">${SHARED.map(s=>`<span class="pill flat">${s}</span>`).join('')}</div>
+    <div class="msec">전용 참고서</div><div class="booklist">${own}</div>
+  </div>`);}
+
+function openSkill(id){const s=SKILLS[id],readers=Object.keys(AGENTS).filter(a=>AGENTS[a].skills.includes(id));
+  openModal(`<div class="mhead skill"><button class="x" onclick="closeModal()">✕</button>
+    <div class="kicker">참고서 · 가이드북</div><h2>${id}</h2><div class="sub">${s.d}</div>
+    <div class="mchips" style="margin-top:12px"><span class="chip cat">${s.cat==='bp'?'라이브러리 best-practice':'프로젝트 패턴'}</span>${s.mcp?'<span class="chip mcp">🔌 Figma MCP</span>':''}${s.star?'<span class="chip star">★ 직접 검토 초안</span>':''}</div></div>
+  <div class="mbody">
+    <div class="msec">포함 내용</div><ul class="cont">${s.contents.map(liCont).join('')}</ul>
+    ${s.src?`<div class="srcline">📚 출처 · ${s.src[1]?`<a href="${s.src[1]}" target="_blank">${s.src[0]}</a>`:s.src[0]}</div>`:''}
+    <div class="msec">이 책을 읽는 직원</div><div class="readers">${readers.length?readers.map(r=>`<span class="pill" onclick="openAgent('${r}')"><span class="dot" style="background:${TIER[AGENTS[r].tier].c}"></span>${r}</span>`).join(''):'<span style="font-size:13px;color:var(--sub)">특정 직원 없음</span>'}</div>
+  </div>`);}
+
+function clearFx(){flow=null;timers.forEach(t=>clearTimeout(t));timers=[];paths.querySelectorAll('line').forEach(l=>l.remove());gateEl.classList.remove('show');for(const id in charEls){charEls[id].classList.remove('active','dim');const o=charEls[id].querySelector('.order');if(o)o.remove();}}
+function center(id){const a=AGENTS[id];return{x:a.pos.x/100*office.clientWidth,y:a.pos.y/100*office.clientHeight};}
+function arrow(p1,p2){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',p1.x);l.setAttribute('y1',p1.y);l.setAttribute('x2',p2.x);l.setAttribute('y2',p2.y);l.setAttribute('stroke','#9cc3ad');l.setAttribute('stroke-width','2');l.setAttribute('stroke-dasharray','5 5');l.setAttribute('marker-end','url(#ah)');l.setAttribute('opacity','.7');paths.appendChild(l);}
+function stepNum(f,target){let n=0;for(const s of f.steps){if(s.a){n++;if(s===target)return n;}}return n;}
+function markStep(key){document.querySelectorAll('.fstep').forEach(el=>el.classList.toggle('on',(key==='g'&&el.dataset.i==='g')||el.dataset.a===key));}
+
+let flow=null;
+function playFlow(key){clearFx();
+  document.querySelectorAll('.flowbtn').forEach(b=>b.classList.toggle('active',b.dataset.k===key));
+  const f=FLOWS[key],involved=f.steps.filter(s=>s.a).map(s=>s.a);
+  for(const id in charEls)charEls[id].classList.toggle('dim',!involved.includes(id));
+  let cards=[],n=0;
+  f.steps.forEach((s,idx)=>{if(s.gate){cards.push(`<div class="fstep gate" data-step="${idx}"><div class="top"><div class="num">⏸</div><div class="who" style="color:var(--gate)">멈춤</div></div><div class="desc">${s.gate} — 확인 게이트</div></div>`);}
+    else{n++;const mt=TIER[AGENTS[s.a].tier];cards.push(`<div class="fstep" data-step="${idx}"><div class="top"><div class="num">${n}</div><div class="who">${s.a}</div><span class="mtag">${mt.claude}</span>${s.par?'<span class="meta">∥</span>':''}${s.loop?'<span class="meta">↻</span>':''}</div><div class="desc">${s.t}</div></div>`);}});
+  flowpanel.innerHTML=`<div class="ttl"><h2>${f.label}</h2><span class="src">CLAUDE.md 정의</span><span class="d">${f.desc} · ⏸ 멈춤 단계는 [진행]을 눌러야 다음으로</span><button class="gobtn" id="flowGo" style="display:none">▶ 진행</button><button class="replay" onclick="playFlow('${key}')">↻ 처음부터</button></div><div class="fsteps">${cards.join('<span class="farrow">→</span>')}</div>`;
+  flowpanel.classList.add('show');
+  flow={f,prev:null};
+  requestAnimationFrame(()=>requestAnimationFrame(()=>runStep(0)));}
+
+function markCards(i){document.querySelectorAll('.fstep').forEach(el=>{const j=+el.dataset.step;el.classList.toggle('on',j===i);el.classList.toggle('done',j<i);el.classList.remove('waiting');});}
+function runStep(i){if(!flow)return;const f=flow.f,steps=f.steps,go=document.getElementById('flowGo');
+  if(i>=steps.length){if(go)go.style.display='none';gateEl.classList.remove('show');markCards(steps.length);flow.prev=null;return;}
+  const s=steps[i];
+  if(s.gate){
+    gateEl.textContent='⏸ '+s.gate;gateEl.style.left='50%';gateEl.style.top='50%';gateEl.classList.remove('show');void gateEl.offsetWidth;gateEl.classList.add('show');
+    markCards(i);const card=document.querySelector('.fstep[data-step="'+i+'"]');if(card)card.classList.add('waiting');
+    if(go){go.style.display='';go.textContent='▶ 진행 ('+s.gate+')';go.onclick=()=>{go.style.display='none';gateEl.classList.remove('show');runStep(i+1);};}
+    return;}
+  if(go)go.style.display='none';
+  const el=charEls[s.a];el.classList.add('active');let o=el.querySelector('.order');if(!o){o=document.createElement('div');o.className='order';el.appendChild(o);}o.textContent=stepNum(f,s);
+  if(flow.prev&&flow.prev!==s.a)arrow(center(flow.prev),center(s.a));
+  markCards(i);flow.prev=s.a;
+  timers.push(setTimeout(()=>runStep(i+1),900));}
+
+const flowsWrap=document.getElementById('flows');
+Object.keys(FLOWS).forEach(k=>{const b=document.createElement('button');b.className='flowbtn';b.dataset.k=k;b.textContent=FLOWS[k].label;b.onclick=()=>playFlow(k);flowsWrap.appendChild(b);});
+const rb=document.createElement('button');rb.className='flowbtn reset';rb.textContent='멈춤·초기화';rb.onclick=()=>{clearFx();flowpanel.classList.remove('show');document.querySelectorAll('.flowbtn').forEach(b=>b.classList.remove('active'));};flowsWrap.appendChild(rb);
+
+document.getElementById('helpBtn').onclick=openWelcome;
+document.getElementById('noteBtn').onclick=openNote;
+
+function openWelcome(){openModal(`<div class="mhead"><button class="x" onclick="closeModal()">✕</button>
+  <div class="kicker">시작하기 · 한 번만</div><h2>Agent Office 👋</h2>
+  <div class="sub">제가 우리 팀의 agent·하네스를 어떻게 설계했는지 보여주는 보드예요.<br>직원이 참고서를 읽고, 정해진 룰셋 안에서 일합니다.</div></div>
+  <div class="mbody">
+    <div class="msec">모든 직원이 지키는 전역 규칙 (여기서 한 번만 설명)</div>
+    <ul class="rules global">${GLOBAL.map(r=>`<li>${r}</li>`).join('')}</ul>
+    <div class="msec">조작</div>
+    <ul class="cont"><li><b>플로우 버튼</b> → 직원이 1·2·3 순서로 밝아지며 일함 (하단에 단계)</li><li><b>캐릭터 클릭</b> → 핵심·모델·고유 룰셋·참고서</li><li><b>책 클릭</b> → 포함 내용·출처·읽는 직원</li><li>상단 <b>설계 노트</b> → 왜 이렇게 설계했는지(MCP·테스트·듀얼도구 등)</li></ul>
+    <div class="msec">색 = 모델 (판단 밀도)</div>
+    <div class="mchips"><span class="chip tier" style="background:var(--high)">높음 opus/high</span><span class="chip tier" style="background:var(--mid)">중간 sonnet/med</span><span class="chip tier" style="background:var(--low)">낮음 haiku/low</span></div>
+  </div>`);}
+
+function openNote(){openModal(`<div class="mhead note"><button class="x" onclick="closeModal()">✕</button>
+  <div class="kicker">설계 노트 · 왜 이렇게 만들었나</div><h2>하네스 설계 결정</h2>
+  <div class="sub">팀이 같은 규격으로 일하도록 만든 핵심 결정들.</div></div>
+  <div class="mbody"><div class="note-grid">
+    <div class="nrow"><h4>🧩 듀얼 도구 (Claude + Codex)</h4><p>같은 규격을 두 도구에서. <b>shared/</b>가 단일 진실 소스, <code>.claude/</code>(md)·<code>.codex/</code>(toml)는 거기서 생성. Codex로 짠 코드도 code-reviewer가 같은 잣대로 검토 → 도구 섞여도 품질 일원화.</p></div>
+    <div class="nrow"><h4>🧭 라우팅 = 크기 × 위험</h4><p>파일 수(S/M/L)만이 아니라 <b>위험 경로(인증·결제 등)</b>를 같이 본다. 위험하면 크기와 무관하게 게이트+리뷰.</p></div>
+    <div class="nrow"><h4>🎚 모델 = 판단 밀도</h4><p>머리 쓰는 일(리뷰·설계)에 상위 모델. opus/sonnet/haiku ↔ Codex high/med/low. 캐릭터 색으로 표시.</p></div>
+    <div class="nrow"><h4>🔌 Figma MCP + 상상코딩 차단</h4><p><b>figma-implementer</b>가 Figma MCP로 노드를 읽어 구현. 토큰은 Figma Variables→Tailwind <code>@theme</code> 자동 생성, <b>화이트리스트 밖 raw 값 금지</b>. MCP가 못 가져오면 추측 대신 <b>멈춤(게이트)</b>.</p></div>
+    <div class="nrow"><h4>🧪 테스트 = AI-native + 게이트</h4><p>유닛 <b>Vitest</b>, E2E <b>Playwright</b>. 별도 플로우가 아니라 <b>위험 경로 변경 → 테스트 통과가 머지 게이트</b>. 구현 베낀 동어반복 테스트 금지(스펙 검증).</p></div>
+    <div class="nrow"><h4>🔀 Git (공동작업)</h4><p>작업 브랜치 → rebase → <code>--force-with-lease</code> → PR. 공유 루트 force push 금지, 충돌은 사람에게.</p></div>
+    <div class="nrow"><h4>🛡 전역 안전</h4><p>모호하면 추측 말고 질문 · 미정(TODO)은 묻고 기록 · 위험경로/커밋/배포 전 사용자 확인.</p></div>
+    <div class="nrow"><h4>📌 확정 / 미정</h4><p><b>확정</b>: 프론트 전용 레포 + 외부 Spring · Next.js·Tailwind · pnpm · rhf+zod · Figma+MCP · 다국어X.<br><b>미정(TODO)</b>: 도메인 정책 · 렌더링 전략(SSR/SC/BFF) · 데이터페칭·상태 · 컴포넌트 라이브러리 · 위험 경로 목록.</p></div>
+  </div></div>`);}
+
+const DECISIONS=[
+ {area:'도메인 · 제품',who:'기획 + 전원',items:['제품 경계 — 한 코드베이스에 여러 영역? 라우트·권한·대상 구분','수익 모델 · 핵심 가치 · 절대 금지(톤/표현/행위)','사용자 단계(비회원/회원/유료)와 권한','유입 채널 · 로드맵']},
+ {area:'아키텍처 — 렌더링 전략',who:'프론트 + 백엔드',items:['SSR / Server Component 기본 / BFF 여부 — "Server vs Client 경계" 규칙의 전제','API Route 용도 (BFF로 쓸지, webhook·metadata만)','SEO·메타데이터 전략']},
+ {area:'데이터 · 상태',who:'프론트 + 백엔드',items:['서버 상태 라이브러리 (TanStack Query? SWR?)','클라 상태 (Zustand? Context?)','HTTP 클라이언트 (ky / fetch / axios)','캐싱·무효화·낙관적 갱신 전략']},
+ {area:'백엔드 계약 (외부 Spring)',who:'백엔드',items:['API 스펙 위치 (OpenAPI / Swagger?)','인증 방식 (httpOnly 쿠키? 토큰?)','에러 응답 포맷','프론트 ↔ 백 타입 동기화 방법']},
+ {area:'디자인 · Figma',who:'디자이너 + 프론트',items:['컴포넌트 라이브러리 (shadcn? 디자인 시스템 기반?)','Figma 변수 → 코드 토큰 이름 매핑 규칙 (예: color/brand/500 → brand-500)','토큰 export 자동화 여부 (수동 config vs 자동)','타겟 사용자 (연령·디바이스·접근성·글씨 크기)','PWA 범위 (홈화면 추가만? 오프라인·푸시까지? 웹/앱 디자인 분리?)']},
+ {area:'테스트',who:'전원',items:['테스트를 독립 플로우로 뺄지 vs 위험경로 "게이트"로 유지 — 논의 필요','E2E(Playwright) 커버 범위','유닛 러너·커버리지 임계','web-performance · accessibility 초안 직접 검토·보강']},
+ {area:'위험 · 운영',who:'전원',items:['위험 경로 목록 확정 (인증·결제·개인정보 → 자동 게이트)','Codex 정확한 model ID 매핑','분석·모니터링 도구 (GA4? Sentry?)','agent/스킬 변경 시 동기화 파일 (단일 진실 소스)']},
+];
+function openAgenda(){const groups=DECISIONS.map(g=>`<div class="agroup"><div class="ah"><h4>${g.area}</h4><span class="who-tag">${g.who}</span></div><ul class="checks">${g.items.map(it=>`<li><span class="box"></span><span>${it}</span></li>`).join('')}</ul></div>`).join('');
+  openModal(`<div class="mhead note"><button class="x" onclick="closeModal()">✕</button>
+  <div class="kicker">회의용 · 확정 필요</div><h2>확정 안건 ✅</h2>
+  <div class="sub">agent·하네스 골격은 끝났어요. 아래는 <b>개발자·디자이너·백엔드와 함께 정할 결정들</b>입니다. 정해지면 shared/ 문서의 TODO를 채우면 끝.</div></div>
+  <div class="mbody"><div class="note-grid">${groups}</div></div>`);}
+document.getElementById('agendaBtn').onclick=openAgenda;
+document.getElementById('agendaBtn').textContent='확정 안건 ('+DECISIONS.reduce((n,g)=>n+g.items.length,0)+')';
+
+window.addEventListener('resize',()=>{const a=document.querySelector('.flowbtn.active');if(a&&FLOWS[a.dataset.k])playFlow(a.dataset.k);});
+openWelcome();
+</script>
+</body>
+</html>
