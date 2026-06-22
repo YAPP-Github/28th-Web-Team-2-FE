@@ -1,0 +1,216 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* 다크모드 완전 비활성화 — OS 다크 설정과 무관하게 항상 라이트.
+   default `dark:` variant(= prefers-color-scheme)를 절대 매칭되지 않는
+   셀렉터로 덮어써, `dark:` 유틸리티가 아예 적용되지 않도록 한다. */
+@custom-variant dark (&:where(.__never-dark__));
+
+:root {
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-pretendard), ui-sans-serif, system-ui,
+    "Apple SD Gothic Neo", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-sans);
+  /* 디스플레이 폰트 (Figma head-point) → font-display1 / font-display2 */
+  --font-display1: var(--font-yspotlight), var(--font-pretendard), sans-serif;
+  --font-display2: var(--font-ypairing), var(--font-pretendard), sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ===========================================================================
+   디자인 시스템 토큰 (Figma Variables · 단일 진실 소스)
+   - 컬러: 기본 Tailwind gray/blue/red 팔레트를 비우고 우리 토큰만 노출(화이트리스트)
+   - 타이포: letter-spacing %→em (head -0.02em / body -0.03em). head1/2는 font-display1/2와 함께.
+   =========================================================================== */
+@theme {
+  --color-gray-*: initial;
+  --color-blue-*: initial;
+  --color-red-*: initial;
+
+  --color-white: #ffffff;
+  --color-gray-50: #f5f6fb;
+  --color-gray-100: #e5e7ef;
+  --color-gray-200: #c2c6d1;
+  --color-gray-300: #828794;
+  --color-gray-400: #626670;
+  --color-gray-700: #40444d;
+  --color-gray-800: #272e3f;
+  --color-gray-900: #0f172a;
+  --color-blue-100: #d2e2ff;
+  --color-blue-200: #9bbeff;
+  --color-blue-300: #8ab3ff;
+  --color-blue-400: #659bff;
+  --color-blue-500: #4e8cff;
+  --color-red-300: #ff5858;
+
+  /* head-point1 (Y SpotlightOTF · Regular) — font-display1 과 함께 */
+  --text-head1-26: 1.625rem;
+  --text-head1-26--line-height: 1.4;
+  --text-head1-26--letter-spacing: -0.02em;
+  --text-head1-24: 1.5rem;
+  --text-head1-24--line-height: 1.45;
+  --text-head1-24--letter-spacing: -0.02em;
+  --text-head1-20: 1.25rem;
+  --text-head1-20--line-height: 1.5;
+  --text-head1-20--letter-spacing: -0.02em;
+  --text-head1-18: 1.125rem;
+  --text-head1-18--line-height: 1.5;
+  --text-head1-18--letter-spacing: -0.02em;
+  --text-head1-16: 1rem;
+  --text-head1-16--line-height: 1.5;
+  --text-head1-16--letter-spacing: -0.02em;
+
+  /* head-point2 (YPairingFont · Bold) — font-display2 와 함께 */
+  --text-head2-26: 1.625rem;
+  --text-head2-26--line-height: 1.45;
+  --text-head2-26--letter-spacing: -0.02em;
+  --text-head2-26--font-weight: 700;
+  --text-head2-24: 1.5rem;
+  --text-head2-24--line-height: 1.45;
+  --text-head2-24--letter-spacing: -0.02em;
+  --text-head2-24--font-weight: 700;
+  --text-head2-20: 1.25rem;
+  --text-head2-20--line-height: 1.5;
+  --text-head2-20--letter-spacing: -0.02em;
+  --text-head2-20--font-weight: 700;
+  --text-head2-18: 1.125rem;
+  --text-head2-18--line-height: 1.5;
+  --text-head2-18--letter-spacing: -0.02em;
+  --text-head2-18--font-weight: 700;
+  --text-head2-16: 1rem;
+  --text-head2-16--line-height: 1.5;
+  --text-head2-16--letter-spacing: -0.02em;
+  --text-head2-16--font-weight: 700;
+
+  /* body (Pretendard) — tracking -0.03em */
+  --text-body-18-semibold: 1.125rem;
+  --text-body-18-semibold--line-height: 1.45;
+  --text-body-18-semibold--letter-spacing: -0.03em;
+  --text-body-18-semibold--font-weight: 600;
+  --text-body-18-medium: 1.125rem;
+  --text-body-18-medium--line-height: 1.5;
+  --text-body-18-medium--letter-spacing: -0.03em;
+  --text-body-18-medium--font-weight: 500;
+  --text-body-18-regular: 1.125rem;
+  --text-body-18-regular--line-height: 1.55;
+  --text-body-18-regular--letter-spacing: -0.03em;
+  --text-body-18-regular--font-weight: 400;
+  --text-body-16-semibold: 1rem;
+  --text-body-16-semibold--line-height: 1.5;
+  --text-body-16-semibold--letter-spacing: -0.03em;
+  --text-body-16-semibold--font-weight: 600;
+  --text-body-16-medium: 1rem;
+  --text-body-16-medium--line-height: 1.5;
+  --text-body-16-medium--letter-spacing: -0.03em;
+  --text-body-16-medium--font-weight: 500;
+  --text-body-16-regular: 1rem;
+  --text-body-16-regular--line-height: 1.55;
+  --text-body-16-regular--letter-spacing: -0.03em;
+  --text-body-16-regular--font-weight: 400;
+  --text-body-14-medium: 0.875rem;
+  --text-body-14-medium--line-height: 1.55;
+  --text-body-14-medium--letter-spacing: -0.03em;
+  --text-body-14-medium--font-weight: 500;
+  --text-body-14-regular: 0.875rem;
+  --text-body-14-regular--line-height: 1.55;
+  --text-body-14-regular--letter-spacing: -0.03em;
+  --text-body-14-regular--font-weight: 400;
+
+  /* caption (Pretendard) — tracking -0.02em */
+  --text-caption-12-medium: 0.75rem;
+  --text-caption-12-medium--line-height: 1.45;
+  --text-caption-12-medium--letter-spacing: -0.02em;
+  --text-caption-12-medium--font-weight: 500;
+  --text-caption-12-regular: 0.75rem;
+  --text-caption-12-regular--line-height: 1.45;
+  --text-caption-12-regular--letter-spacing: -0.02em;
+  --text-caption-12-regular--font-weight: 400;
+}
+
+/* 다크모드 토큰(.dark) 제거 — 항상 라이트 default 토큰만 사용 */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
