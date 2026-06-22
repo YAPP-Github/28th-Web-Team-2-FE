@@ -1,6 +1,6 @@
 ---
 name: explorer
-description: "어디 있어?", "영향 범위는?", "어떻게 구현돼있어?" 등 코드 탐색에 빠르게 답한다. 수정하지 않음. 누락 제로 전수 검색은 auditor.
+description: '"어디 있어?", "영향 범위는?", "어떻게 구현돼있어?" 등 코드 탐색에 빠르게 답한다. 수정하지 않음. 누락 제로 전수 검색은 auditor.'
 tools: Read, Grep, Glob
 model: haiku
 maxTurns: 10
