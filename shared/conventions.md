@@ -16,17 +16,19 @@
 
 ## 스택 (확정)
 
-- 프론트: **Next.js + Tailwind CSS** (프론트 전용 레포)
+- 프론트: **Next.js (App Router) + Tailwind CSS v4** (프론트 전용 레포)
 - 백엔드: **외부 Spring (별도 레포)** — 이 레포엔 백엔드 구현 없음
+- **렌더링 전략 (확정 2026-06-22)**: **BFF·SSR·Server Component 안 씀.** 화면은 **클라이언트 컴포넌트** 중심, 서버 상태는 **TanStack Query**로 관리(CSR). → Server/Client 경계 고민 최소화. (예외가 필요해지면 이 줄을 갱신)
+- **데이터 페칭/상태 (확정 2026-06-22)**: **TanStack Query**(서버 상태) + **native fetch 래퍼**(HTTP 클라이언트, `ApiError` throw). 전역 클라이언트 상태 도구는 필요해질 때 결정. → `api-patterns`·`data-fetching` 참조
+- **컴포넌트 라이브러리 (확정 2026-06-22)**: **shadcn/ui**로 초안 → 추후 자체 디자인 시스템으로 확장. (토큰 진실 소스는 Figma — `design-guide.md §0`)
 - 폼: **react-hook-form + zod**
 - 패키지 매니저: **pnpm**
-- 테스트: **Vitest(유닛) + Playwright(E2E)**, AI-native
+- 테스트: **Vitest(유닛) + Playwright(E2E)**, AI-native. **E2E(Playwright)는 추후 도입** — 초기엔 Vitest 위주.
+- **PWA (확정 2026-06-22)**: **Serwist**(`@serwist/next`)로 패키징 — 서비스워커 + 매니페스트 + 오프라인 캐싱. **알림(Web Push) 발송 가능성**을 열어두기 위함. 웹/앱 디자인 분리 전략은 추후.
 - 디자인: **Figma + MCP**, 토큰은 Figma Variables → Tailwind config 자동 생성
 - 다국어: 안 함 (한국어 only)
 
 ## 미정 (TODO — 건드리는 작업이면 사용자에게 묻고 여기 기록)
 
-- `TODO(✍️):` Next.js 렌더링 전략 (SSR / Server Component / BFF) → Server/Client 경계 규칙의 전제
-- `TODO(✍️):` 데이터 페칭 / 상태 관리 (백엔드와 논의)
-- `TODO(✍️):` 컴포넌트 라이브러리 (shadcn? 디자인 시스템 보고)
-- `TODO(✍️):` PWA 웹/앱 디자인 분리 전략
+- `TODO(✍️):` PWA 웹/앱 디자인 분리 전략 (패키징은 Serwist로 결정 — 디자인 분리만 미정)
+- `TODO(✍️):` 전역 클라이언트 상태 관리 도구 (zustand 등 — 필요해질 때)
