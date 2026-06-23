@@ -89,7 +89,7 @@ export function ShareView({ nickname, token }: ShareViewProps) {
 
   return (
     // figma-loose: 로고 top Figma 80px(프레임, status bar 44px 포함) → pt-9(36px) 근사
-    <main className="relative flex min-h-full flex-col overflow-hidden bg-sky-gradient px-5 pb-10 pt-9">
+    <main className="relative isolate flex min-h-full flex-col overflow-hidden bg-sky-gradient px-5 pb-10 pt-9">
       {/* 배경: 하늘 그라데이션(Figma 그대로) + 구름(BgCloud) */}
       <BgCloud />
 

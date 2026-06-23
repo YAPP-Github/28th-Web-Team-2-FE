@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { BgCloud } from "@/components/ui/bg-cloud";
@@ -9,7 +10,7 @@ import { Logo } from "@/components/ui/logo";
 // 룰/Figma에서 느슨하게 처리한 지점은 `figma-loose:` 주석으로 표기(디자이너 합의용).
 export default function Home() {
   return (
-    <main className="relative flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-8 pt-16 text-center">
+    <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-8 pt-16 text-center">
       {/* 배경: 하늘 그라데이션(bg-sky-gradient, Figma 그대로) + 구름(BgCloud, 디자이너 번들 이미지) */}
       <BgCloud />
 
@@ -26,8 +27,20 @@ export default function Home() {
         만들어보세요!
       </h1>
 
-      {/* 일러스트·배경 = 디자이너 프레임 대기. 자리만 확보(캐릭터 에셋 public/assets/character-insight.png 보유). */}
-      <div className="flex-1" aria-hidden />
+      {/* 캐릭터 일러스트 (Figma F01 node 362:2151 img_character_hamster_insight — 말풍선·돋보기·네컷 합성 PNG).
+          Figma: w280 h384 @ top316, 가로 중앙. 에셋 public/assets/character-insight.png(841×1152, 동일 비율).
+          figma-loose: 정확한 top(316px) 대신 flex-1 영역 세로 중앙 배치로 근사. */}
+      <div className="flex flex-1 items-center justify-center">
+        <Image
+          src="/assets/character-insight.png"
+          alt=""
+          aria-hidden
+          width={280}
+          height={384}
+          priority
+          className="h-auto w-70 max-w-full select-none"
+        />
+      </div>
 
       {/* figma-loose: CTA 영역 Figma pb 34px → pb-8(32px, -2px) 근사. 상단 여백은 flex-1로 흡수 */}
       <Cta asChild>

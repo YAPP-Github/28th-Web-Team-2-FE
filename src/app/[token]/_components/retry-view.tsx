@@ -21,7 +21,7 @@ export function RetryView({
   return (
     // figma-loose: 로고 top Figma 106px(프레임, status bar 44px 포함) → pt-16(64px) 근사.
     // 배경: bg-gray-gradient(white→gray-200, sky 아닌 회색 그라데이션) + BgCloud.
-    <main className="relative flex min-h-full flex-col items-center overflow-hidden bg-gray-gradient px-5 pb-6 pt-16 text-center">
+    <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-gray-gradient px-5 pb-6 pt-16 text-center">
       {/* 배경 구름 */}
       <BgCloud />
 
