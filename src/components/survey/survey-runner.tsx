@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+import { BtnSurvey } from "@/components/ui/btn-survey";
+import { ArrowLeftIcon } from "@/components/ui/icons/arrow-left";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { NEUTRAL_CHOICE, type SurveyQuestion } from "@data/questions";
 
 interface SurveyRunnerProps {
@@ -75,17 +78,16 @@ export function SurveyRunner({
             type="button"
             onClick={handleBack}
             aria-label="이전 문항"
-            className="-ml-1 flex size-8 items-center justify-center text-gray-900"
+            className="-ml-1 flex size-8 items-center justify-center"
           >
-            ←
+            <ArrowLeftIcon className="text-gray-900" />
           </button>
         )}
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
-          <div
-            className="h-full rounded-full bg-blue-500 transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <ProgressBar
+          value={progress}
+          className="flex-1"
+          aria-label={`설문 진행 ${index + 1} / ${total}`}
+        />
       </div>
 
       {/* 진행 표시 + 지문 */}
@@ -107,19 +109,18 @@ export function SurveyRunner({
       <ul className="mt-8 flex flex-col gap-3">
         {choices.map((choice, i) => {
           const selected = answers[question.id] === i;
+          const isNeutral = choice === NEUTRAL_CHOICE;
           return (
             <li key={`${question.id}-${i}`}>
-              <button
-                type="button"
+              <BtnSurvey
+                isActive={selected}
                 onClick={() => handleSelect(i)}
-                className={`w-full rounded-2xl border px-5 py-4 text-left text-body-14-medium transition-colors ${
-                  selected
-                    ? "border-blue-500 bg-blue-100 text-gray-900"
-                    : "border-gray-100 bg-gray-50 text-gray-700 hover:border-blue-200"
-                } ${choice === NEUTRAL_CHOICE ? "text-gray-300" : ""}`}
+                className={
+                  isNeutral && !selected ? "text-gray-300" : undefined
+                }
               >
                 {choice}
-              </button>
+              </BtnSurvey>
             </li>
           );
         })}
