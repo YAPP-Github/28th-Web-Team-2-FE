@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { Cta } from "@/components/ui/cta";
 
 // 랜딩 / 진입 (product-spec #1) — 대충 초안. 마스코트 히어로 + 시작 CTA.
 // TODO(✍️): resume(로컬스토리지 진행 중 링크) 분기, landing_view 분석 이벤트
@@ -45,13 +45,9 @@ export default function Home() {
       </div>
 
       <div className="flex w-full flex-col items-center gap-3">
-        <Button
-          asChild
-          size="lg"
-          className="w-full rounded-2xl bg-blue-500 text-white hover:bg-blue-400"
-        >
+        <Cta asChild>
           <Link href="/onboarding/nickname">시작하기</Link>
-        </Button>
+        </Cta>
         {/* TODO(✍️): 진행 중인 내 링크 있을 때만 노출 (resume) */}
         <Link
           href="/onboarding/nickname"
