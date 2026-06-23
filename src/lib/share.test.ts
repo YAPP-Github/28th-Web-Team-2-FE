@@ -6,7 +6,7 @@ import { shareInstagramStory, shareKakao } from "./share";
 // 브라우저 API(clipboard·navigator.share·fetch·Kakao SDK)를 모킹해 폴백 분기를 검증.
 
 const LINK = "https://looky.my/abc123";
-const IMG = "https://looky.my/mascot.png";
+const IMG = "https://looky.my/assets/story-share.png";
 
 function setClipboard(ok: boolean) {
   const writeText = ok

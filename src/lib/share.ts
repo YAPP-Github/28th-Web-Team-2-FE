@@ -48,7 +48,7 @@ async function copyLink(link: string): Promise<boolean> {
   }
 }
 
-/** 인스타 스토리: mascot 이미지를 공유 시트로 + 링크는 클립보드 복사 */
+/** 인스타 스토리: 스토리 공유 이미지(imageUrl, 보통 story-share.png)를 공유 시트로 + 링크는 클립보드 복사 */
 export async function shareInstagramStory({
   link,
   imageUrl,
