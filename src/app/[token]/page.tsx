@@ -79,14 +79,7 @@ export default function TokenPage() {
 
       {/* 뷰 영역 — 남은 높이를 채우고 넘치면 스크롤(결과 페이지). 스크롤바는 숨김. */}
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-hide">
-        {view === "share" && (
-          <ShareView
-            nickname={nickname}
-            token={token}
-            respondentCount={2}
-            hoursLeft={18}
-          />
-        )}
+        {view === "share" && <ShareView nickname={nickname} token={token} />}
         {view === "respondent" && <RespondentView nickname={nickname} />}
         {view === "result" && <ResultView />}
         {view === "retry" && (

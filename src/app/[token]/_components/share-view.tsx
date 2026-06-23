@@ -23,10 +23,6 @@ import { ShareCards } from "./share-cards";
 interface ShareViewProps {
   nickname: string;
   token: string;
-  // ⚠ figma-loose(충돌): respondentCount·hoursLeft 는 product-spec #4의 '수집 게이지·카운트다운'용이나
-  //   Figma GUI 1차 F04엔 해당 UI가 없음 → 현재 미렌더. props는 게이지 복원 합의 대비 유지. (task #8 리포트)
-  respondentCount: number;
-  hoursLeft: number;
 }
 
 export function ShareView({ nickname, token }: ShareViewProps) {
