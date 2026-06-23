@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { SurveyRunner } from "@/components/survey/survey-runner";
-import { Button } from "@/components/ui/button";
+import { Cta } from "@/components/ui/cta";
+import { Logo } from "@/components/ui/logo";
 import { pickQuestions } from "@data/questions";
 import { QUADRANTS } from "@data/quadrants";
 
@@ -18,7 +19,7 @@ export function RespondentView({ nickname }: { nickname: string }) {
   if (step === "intro") {
     return (
       <main className="flex min-h-full flex-col items-center px-5 pb-8 pt-16 text-center">
-        <span className="text-caption-12-medium text-gray-300">서비스 로고</span>
+        <Logo />
         <div className="mt-8 flex items-center gap-2">
           <span className="rounded-lg bg-blue-100 px-3 py-1 text-body-16-semibold text-gray-900">
             {nickname}
@@ -46,13 +47,9 @@ export function RespondentView({ nickname }: { nickname: string }) {
           <br />
           숨은 모습을 함께 그릴 수 있어요!
         </p>
-        <Button
-          size="lg"
-          onClick={() => setStep("survey")}
-          className="mt-4 h-13 w-full rounded-2xl text-body-16-semibold"
-        >
+        <Cta onClick={() => setStep("survey")} className="mt-4">
           설문 시작하기
-        </Button>
+        </Cta>
       </main>
     );
   }
@@ -96,13 +93,9 @@ export function RespondentView({ nickname }: { nickname: string }) {
         <p className="mb-3 text-body-14-regular text-gray-300">
           남이 본 내 모습이 궁금하다면?
         </p>
-        <Button
-          asChild
-          size="lg"
-          className="h-13 w-full rounded-2xl text-body-16-semibold"
-        >
+        <Cta asChild>
           <Link href="/onboarding/nickname">나도 만들기</Link>
-        </Button>
+        </Cta>
       </div>
     </main>
   );

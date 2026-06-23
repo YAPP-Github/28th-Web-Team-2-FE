@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Cta } from "@/components/ui/cta";
+import { CtaSmall } from "@/components/ui/cta-small";
+import { DownloadIcon } from "@/components/ui/icons/download";
+import { Logo } from "@/components/ui/logo";
 import { shareKakao } from "@/lib/share";
 import { QUADRANT_LABEL } from "@data/quadrants";
 import { DUMMY_RESULT } from "@data/result";
@@ -47,8 +50,8 @@ export function ResultView() {
       description: r.headline,
       imageUrl:
         typeof window !== "undefined"
-          ? `${window.location.origin}/mascot.png`
-          : "/mascot.png",
+          ? `${window.location.origin}/assets/og-image.png`
+          : "/assets/og-image.png",
     });
     showToast(result === "shared" ? "카카오톡 공유를 열었어요" : "링크를 복사했어요");
   };
@@ -66,13 +69,7 @@ export function ResultView() {
         </p>
         <div className="mt-8 aspect-square w-full rounded-2xl bg-gray-100" />
         <div className="mt-auto w-full pt-8">
-          <Button
-            size="lg"
-            onClick={() => setEntered(true)}
-            className="h-13 w-full rounded-2xl text-body-16-semibold"
-          >
-            네컷 보기
-          </Button>
+          <Cta onClick={() => setEntered(true)}>네컷 보기</Cta>
         </div>
       </main>
     );
@@ -82,13 +79,13 @@ export function ResultView() {
     <main className="relative flex min-h-full flex-col px-5 pb-8 pt-6">
       {/* 상단: 로고 + 저장 */}
       <div className="flex items-center justify-between">
-        <span className="text-head1-18 font-display1 text-blue-500">LOOKY</span>
+        <Logo size="sm" />
         <button
           type="button"
           aria-label="이미지 저장"
-          className="flex size-9 items-center justify-center rounded-lg bg-gray-50 text-gray-700"
+          className="flex size-9 items-center justify-center rounded-lg bg-gray-50"
         >
-          ↓
+          <DownloadIcon className="text-gray-700" />
         </button>
       </div>
 
@@ -171,21 +168,12 @@ export function ResultView() {
 
       {/* 하단 CTA */}
       <div className="mt-8 flex gap-3">
-        <Button
-          size="lg"
-          variant="outline"
-          onClick={handleCopy}
-          className="h-13 flex-1 rounded-2xl border-gray-100 text-body-14-medium text-gray-700"
-        >
+        <CtaSmall variant="stroke_icn" onClick={handleCopy} className="flex-1">
           복사
-        </Button>
-        <Button
-          size="lg"
-          onClick={handleKakao}
-          className="h-13 flex-[2] rounded-2xl text-body-16-semibold"
-        >
+        </CtaSmall>
+        <CtaSmall variant="fill" onClick={handleKakao} className="flex-1">
           카톡 공유
-        </Button>
+        </CtaSmall>
       </div>
 
       {/* 토스트 */}

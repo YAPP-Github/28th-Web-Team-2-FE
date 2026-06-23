@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { Cta } from "@/components/ui/cta";
 
 // 만료/없는 링크 뷰 (product-spec #8) — Figma 전용 프레임 없어 와이어프레임에서 보강.
 // TODO(✍️): 404 규격 vs 만료 안내 분리(개발자 논의).
@@ -22,13 +22,9 @@ export function ExpiredView() {
       </p>
 
       <div className="mt-auto w-full pt-10">
-        <Button
-          asChild
-          size="lg"
-          className="h-13 w-full rounded-2xl text-body-16-semibold"
-        >
+        <Cta asChild>
           <Link href="/">내 것 만들기</Link>
-        </Button>
+        </Cta>
       </div>
     </main>
   );

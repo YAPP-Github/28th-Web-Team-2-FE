@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Cta } from "@/components/ui/cta";
+import { CtaSmall } from "@/components/ui/cta-small";
+import { Logo } from "@/components/ui/logo";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import {
   shareInstagramStory,
   shareKakao,
@@ -10,8 +13,9 @@ import {
 } from "@/lib/share";
 
 // 공유 관리 뷰 (product-spec #4) — 주인공·수집중. 핵심 루프: 링크를 퍼뜨려 참여자 모으기.
-// 인스타 스토리는 이미지(mascot) 공유 + 링크는 클립보드 복사(스토리 링크 제약 회피, domain.md §1).
-// TODO(✍️): 24h 만료·전환 책임 위치(클라/서버), 스토리 공유 이미지 규격.
+// 인스타 스토리는 세로형 스토리 이미지(story-share, 1080×1920) 공유 + 링크는 클립보드 복사(스토리 링크 제약 회피, domain.md §1).
+// 카카오 피드는 가로형 OG 이미지(og-image, 1200×630) 사용.
+// TODO(✍️): 24h 만료·전환 책임 위치(클라/서버).
 interface ShareViewProps {
   nickname: string;
   token: string;
@@ -36,14 +40,11 @@ export function ShareView({
     };
   }, []);
 
-  const link =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/${token}`
-      : `/${token}`;
-  const imageUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/mascot.png`
-      : "/mascot.png";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const link = `${origin}/${token}`;
+  // 인스타 스토리: 세로형(1080×1920) / 카카오 피드: 가로형 OG(1200×630)
+  const storyImageUrl = `${origin}/assets/story-share.png`;
+  const ogImageUrl = `${origin}/assets/og-image.png`;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -75,7 +76,7 @@ export function ShareView({
   };
 
   const handleInstagram = async () => {
-    const result = await shareInstagramStory({ link, imageUrl });
+    const result = await shareInstagramStory({ link, imageUrl: storyImageUrl });
     showToast(instaMessage[result]);
   };
 
@@ -84,7 +85,7 @@ export function ShareView({
       link,
       title: `${nickname}님이 보는 나, 궁금하지 않아?`,
       description: "친구들이 본 나를 인생네컷으로. looky",
-      imageUrl,
+      imageUrl: ogImageUrl,
     });
     showToast(kakaoMessage[result]);
   };
@@ -93,7 +94,7 @@ export function ShareView({
 
   return (
     <main className="relative flex min-h-full flex-col px-5 pb-8 pt-16">
-      <span className="text-head1-20 font-display1 text-blue-500">LOOKY</span>
+      <Logo />
 
       <h1 className="mt-6 text-head2-24 font-display2 text-gray-900">
         잠깐! 지금 당장 링크를 복사해서
@@ -127,12 +128,11 @@ export function ShareView({
             {hoursLeft}시간 남음
           </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-          <div
-            className="h-full rounded-full bg-blue-500 transition-all"
-            style={{ width: `${ratio * 100}%` }}
-          />
-        </div>
+        <ProgressBar
+          value={ratio * 100}
+          className="h-2"
+          aria-label={`모인 응답 ${respondentCount} / ${TARGET}`}
+        />
         {respondentCount === 0 && (
           <p className="text-caption-12-regular text-gray-300">
             첫 친구를 기다리는 중이에요
@@ -142,30 +142,18 @@ export function ShareView({
 
       {/* 공유 CTA */}
       <div className="mt-auto flex flex-col gap-3 pt-8">
-        <Button
-          size="lg"
-          onClick={handleCopy}
-          className="h-13 w-full rounded-2xl text-body-16-semibold"
-        >
-          {nickname}의 링크 복사
-        </Button>
+        <Cta onClick={handleCopy}>{nickname}의 링크 복사</Cta>
         <div className="flex gap-3">
-          <Button
-            size="lg"
-            variant="outline"
+          <CtaSmall
+            variant="stroke"
             onClick={handleInstagram}
-            className="h-13 flex-1 rounded-2xl border-gray-100 text-body-14-medium text-gray-700"
+            className="flex-1"
           >
             인스타 스토리 공유
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={handleKakao}
-            className="h-13 flex-1 rounded-2xl border-gray-100 text-body-14-medium text-gray-700"
-          >
+          </CtaSmall>
+          <CtaSmall variant="fill" onClick={handleKakao} className="flex-1">
             카카오톡 공유
-          </Button>
+          </CtaSmall>
         </div>
       </div>
 

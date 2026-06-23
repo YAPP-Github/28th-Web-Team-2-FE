@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Cta } from "@/components/ui/cta";
 
 // 응답 미달 재시도 뷰 (product-spec #7) — 24h 경과 + 응답 3건 미달.
 // 결과 네컷은 생성 안 함. 좌절감 줄이는 톤 + 재공유 유도.
@@ -28,13 +28,7 @@ export function RetryView({
       </p>
 
       <div className="mt-auto w-full pt-10">
-        <Button
-          size="lg"
-          onClick={onRetry}
-          className="h-13 w-full rounded-2xl text-body-16-semibold"
-        >
-          다시하기
-        </Button>
+        <Cta onClick={onRetry}>다시하기</Cta>
       </div>
     </main>
   );
