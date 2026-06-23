@@ -101,6 +101,7 @@
   --color-blue-*: initial;
   --color-red-*: initial;
   --color-pink-*: initial;
+  --color-yellow-*: initial;
 
   --color-white: #ffffff;
   --color-gray-50: #f5f6fb;
@@ -118,6 +119,9 @@
   --color-blue-500: #4e8cff;
   --color-red-300: #ff5858;
   --color-pink-300: #ff63b3;
+  /* yellow — F05 형용사 태그(yellow/200 배경 + yellow/800 텍스트). Figma Variable 동기화. */
+  --color-yellow-200: #fff4c1;
+  --color-yellow-800: #7b7453;
 
   /* ── 아이콘 전용 색상표 (서비스 색상표와 분리한 의미 레이어) ──
      Figma node 395:9882 "아이콘" 섹션 기준. 아이콘 컴포넌트 기본색.
@@ -229,6 +233,17 @@
     180deg,
     var(--color-white) 21.059%,
     var(--color-blue-200) 100%
+  );
+}
+
+/* 회색 그라데이션 — 결과 실패/중립 화면(F05 결과물 생성 실패 등) 공용.
+   Figma 토큰 grad/background_gray: linear-gradient(180deg, white 21.059%, gray-200 100%).
+   값 그대로 반영(white=#fff, gray-200=#c2c6d1). sky-gradient와 동일 구조, 끝색만 회색. */
+@utility bg-gray-gradient {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-white) 21.059%,
+    var(--color-gray-200) 100%
   );
 }
 
