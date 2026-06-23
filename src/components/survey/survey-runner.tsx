@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BtnSurvey } from "@/components/ui/btn-survey";
 import { ArrowLeftIcon } from "@/components/ui/icons/arrow-left";
@@ -30,6 +30,14 @@ export function SurveyRunner({
 }: SurveyRunnerProps) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [isPending, setIsPending] = useState(false);
+  const timer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    };
+  }, []);
 
   const total = questions.length;
   // 빈 문항 가드 — 공용 컴포넌트라 호출처가 늘어도 크래시 방지 (3종 상태: 빈).
@@ -49,14 +57,18 @@ export function SurveyRunner({
     : question.choices;
 
   const handleSelect = (choiceIndex: number) => {
+    if (isPending) return;
     const next = { ...answers, [question.id]: choiceIndex };
     setAnswers(next);
-
-    if (index + 1 < total) {
-      setIndex(index + 1);
-    } else {
-      onComplete(next);
-    }
+    setIsPending(true);
+    timer.current = window.setTimeout(() => {
+      setIsPending(false);
+      if (index + 1 < total) {
+        setIndex(index + 1);
+      } else {
+        onComplete(next);
+      }
+    }, 500);
   };
 
   const handleBack = () => {
@@ -108,7 +120,7 @@ export function SurveyRunner({
 
       {/* 보기 — Figma top329, gap-16(=gap-4), btn_survey */}
       {/* figma-loose: 보기 top Figma 329px → 지문 아래 mt-12(48px) 근사 */}
-      <ul className="mt-12 flex flex-col gap-4 px-5">
+      <ul className={`mt-12 flex flex-col gap-4 px-5${isPending ? " pointer-events-none" : ""}`}>
         {choices.map((choice, i) => {
           const selected = answers[question.id] === i;
           const isNeutral = choice === NEUTRAL_CHOICE;
