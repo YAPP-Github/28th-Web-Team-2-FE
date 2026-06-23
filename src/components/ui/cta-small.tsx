@@ -1,9 +1,10 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Link } from "lucide-react"
 import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { KakaoIcon } from "@/components/ui/icons/kakao"
+import { LinkIcon } from "@/components/ui/icons/link"
 
 /**
  * CTA_small — 공유 버튼 (171×56, radius 16px)
@@ -17,10 +18,10 @@ import { cn } from "@/lib/utils"
  *   Figma 인스턴스 395:9844 확인 결과 CTA_small stroke variant와 완전 동일.
  *   별도 컴포넌트 없이 <CtaSmall variant="stroke" /> 로 대체.
  *
- * 아이콘 처리:
- *   stroke_icn variant의 Figma 원본 아이콘 = 45도 회전 링크 아이콘.
- *   lucide-react `Link` (Link2)와 동일 모양으로 판단, lucide로 대체.
- *   브랜드 SVG 에셋이 별도 제공되면 교체 요망.
+ * 아이콘 처리 (브랜드 SVG 부재 → 레포 자체 아이콘 사용):
+ *   stroke_icn → icons/link 의 LinkIcon (Figma icn_link 45° 링크 아이콘)
+ *   fill       → icons/kakao 의 KakaoIcon (말풍선 — 공식 심볼 제공 시 교체 요망)
+ *   둘 다 currentColor 상속 → 버튼 텍스트색(gray-900)을 따른다.
  *
  * 토큰 플래그:
  *   bg-kakao(--color-kakao: #fee500) — 화이트리스트 밖 신설. 디자이너 검증 요망.
@@ -87,12 +88,9 @@ function CtaSmall({
       {...props}
     >
       {variant === "stroke_icn" && (
-        <Link
-          size={24}
-          aria-hidden="true"
-          className="shrink-0"
-        />
+        <LinkIcon className="shrink-0 text-gray-900" />
       )}
+      {variant === "fill" && <KakaoIcon className="shrink-0" />}
       {children}
     </Comp>
   )
