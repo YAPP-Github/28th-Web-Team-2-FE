@@ -75,7 +75,7 @@ export function RespondentView({ nickname }: { nickname: string }) {
   // 배경: bg-sky-gradient + BgCloud (intro와 동일 패턴).
   return (
     // figma-loose: 로고 top Figma 104px(프레임, status bar 44px 포함) → pt-16(64px) 근사. intro(pt-16)와 동일.
-    <main className="relative flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-6 pt-16 text-center">
+    <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-6 pt-16 text-center">
       {/* 배경: 하늘 그라데이션(Figma 그대로) + 구름(BgCloud) */}
       <BgCloud />
 
