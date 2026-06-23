@@ -11,17 +11,23 @@ const QS: SurveyQuestion[] = [
 ];
 
 describe("SurveyRunner", () => {
+  // 진행 표시는 "1"(blue) + " / 2"(gray) 두 span으로 쪼개져 있어 textContent로 매칭
+  const progress = (text: string) =>
+    screen.getByText(
+      (_, el) => el?.tagName === "P" && el.textContent === text,
+    );
+
   it("첫 문항과 진행도(1/N)를 보여준다", () => {
     render(<SurveyRunner questions={QS} onComplete={vi.fn()} />);
     expect(screen.getByText("질문 A")).toBeInTheDocument();
-    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+    expect(progress("1 / 2")).toBeInTheDocument();
   });
 
   it("보기를 고르면 다음 문항으로 넘어간다", () => {
     render(<SurveyRunner questions={QS} onComplete={vi.fn()} />);
     fireEvent.click(screen.getByText("a1"));
     expect(screen.getByText("질문 B")).toBeInTheDocument();
-    expect(screen.getByText("2 / 2")).toBeInTheDocument();
+    expect(progress("2 / 2")).toBeInTheDocument();
   });
 
   it("마지막 문항 완료 시 onComplete에 답안 맵을 넘긴다", () => {

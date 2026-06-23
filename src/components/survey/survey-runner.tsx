@@ -9,7 +9,7 @@ import { NEUTRAL_CHOICE, type SurveyQuestion } from "@data/questions";
 
 interface SurveyRunnerProps {
   questions: SurveyQuestion[];
-  /** 상단 서브젝트 라벨. 본인="나에 대해", 참여자="{닉네임}에 대해" 등 */
+  /** 상단 서브젝트 라벨. figma-loose: GUI 1차 설문 화면엔 미표시 → 현재 미렌더(prop은 유지). */
   subjectLabel?: string;
   /** 본인 설문이면 "잘 모르겠어요" 중립 선택지 추가 (domain.md §2) */
   includeNeutral?: boolean;
@@ -19,11 +19,11 @@ interface SurveyRunnerProps {
   onBack?: () => void;
 }
 
-// 본인·참여자 공용 설문 진행기 (product-spec #3, #5).
-// 한 화면 한 문항 · 큰 보기 버튼 · 진행 n/8.
+// 본인·참여자 공용 설문 진행기 (product-spec #3·#5 · Figma F03 node 414:13343).
+// 한 화면 한 문항. 헤더(뒤로) → 전체폭 진행바 → n/8 + 지문 → 보기(btn_survey).
+// 룰/Figma에서 느슨하게 처리한 지점은 `figma-loose:` 주석으로 표기(디자이너 합의용).
 export function SurveyRunner({
   questions,
-  subjectLabel,
   includeNeutral = false,
   onComplete,
   onBack,
@@ -35,7 +35,7 @@ export function SurveyRunner({
   // 빈 문항 가드 — 공용 컴포넌트라 호출처가 늘어도 크래시 방지 (3종 상태: 빈).
   if (total === 0) {
     return (
-      <div className="flex min-h-full items-center justify-center px-6 text-center">
+      <div className="flex min-h-full items-center justify-center bg-gray-50 px-6 text-center">
         <p className="text-body-14-regular text-gray-300">
           불러올 문항이 없어요
         </p>
@@ -69,44 +69,46 @@ export function SurveyRunner({
 
   const progress = Math.round(((index + 1) / total) * 100);
 
+  // Figma: 화면 배경 gray-50, 헤더/진행바 전체폭, 지문·보기만 px-5(left-20)
   return (
-    <div className="flex min-h-full flex-col px-5 pb-8 pt-4">
-      {/* 상단: 뒤로 + 프로그레스바 */}
-      <div className="flex items-center gap-3">
+    <div className="flex min-h-full flex-col bg-gray-50 pb-8">
+      {/* 헤더 — Figma top44 h60. 뒤로 48×48 터치영역(icn 24, left-8) */}
+      <header className="flex h-15 items-center px-2">
         {(onBack || index > 0) && (
           <button
             type="button"
             onClick={handleBack}
             aria-label="이전 문항"
-            className="-ml-1 flex size-8 items-center justify-center"
+            className="flex size-12 items-center justify-center"
           >
             <ArrowLeftIcon className="text-gray-900" />
           </button>
         )}
-        <ProgressBar
-          value={progress}
-          className="flex-1"
-          aria-label={`설문 진행 ${index + 1} / ${total}`}
-        />
-      </div>
+      </header>
 
-      {/* 진행 표시 + 지문 */}
-      <div className="mt-10 flex flex-col items-center gap-3 text-center">
-        {subjectLabel && (
-          <span className="text-caption-12-medium text-gray-300">
-            {subjectLabel}
-          </span>
-        )}
-        <span className="text-body-14-medium text-gray-300">
-          {index + 1} / {total}
-        </span>
-        <h1 className="text-head1-20 font-display1 text-gray-900">
+      {/* 진행바 — Figma top104, 전체폭, h-4(4px), 흰 트랙 */}
+      <ProgressBar
+        value={progress}
+        className="h-1 rounded-none bg-white"
+        aria-label={`설문 진행 ${index + 1} / ${total}`}
+      />
+
+      {/* 진행 표시 + 지문 — Figma top144, gap-8 */}
+      {/* figma-loose: 지문 블록 top Figma 144px → 진행바 아래 mt-10(40px) 근사, gap-2(8px) Figma 일치 */}
+      <div className="mt-10 flex flex-col items-center gap-2 px-5 text-center">
+        <p className="text-body-16-medium">
+          <span className="text-blue-500">{index + 1}</span>
+          <span className="text-gray-300"> / {total}</span>
+        </p>
+        {/* Figma: head-point1/24 = display1(Y Spotlight) 24px (기존 head1-20에서 교정) */}
+        <h1 className="text-head1-24 font-display1 text-gray-900">
           {question.scenario}
         </h1>
       </div>
 
-      {/* 보기 */}
-      <ul className="mt-8 flex flex-col gap-3">
+      {/* 보기 — Figma top329, gap-16(=gap-4), btn_survey */}
+      {/* figma-loose: 보기 top Figma 329px → 지문 아래 mt-12(48px) 근사 */}
+      <ul className="mt-12 flex flex-col gap-4 px-5">
         {choices.map((choice, i) => {
           const selected = answers[question.id] === i;
           const isNeutral = choice === NEUTRAL_CHOICE;
@@ -115,9 +117,7 @@ export function SurveyRunner({
               <BtnSurvey
                 isActive={selected}
                 onClick={() => handleSelect(i)}
-                className={
-                  isNeutral && !selected ? "text-gray-300" : undefined
-                }
+                className={isNeutral && !selected ? "text-gray-300" : undefined}
               >
                 {choice}
               </BtnSurvey>
