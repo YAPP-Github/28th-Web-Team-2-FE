@@ -94,7 +94,7 @@ export function ShareView({
 
   return (
     <main className="relative flex min-h-full flex-col px-5 pb-8 pt-16">
-      <Logo />
+      <Logo size="sm" />
 
       <h1 className="mt-6 text-head2-24 font-display2 text-gray-900">
         잠깐! 지금 당장 링크를 복사해서

@@ -28,7 +28,7 @@ export default function NicknamePage() {
 
   return (
     <main className="flex min-h-full flex-col px-5 pb-8 pt-16">
-      <Logo />
+      <Logo size="sm" />
 
       <div className="mt-8 flex flex-col gap-2">
         <h1 className="text-head2-24 font-display2 text-gray-900">
