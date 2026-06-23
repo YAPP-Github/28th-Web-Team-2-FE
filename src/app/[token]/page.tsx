@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { isOwner, readSession } from "@/lib/local-session";
@@ -24,6 +24,7 @@ const VIEWS: { key: View; label: string }[] = [
 
 export default function TokenPage() {
   const params = useParams<{ token: string }>();
+  const router = useRouter();
   const token = params.token;
   const [view, setView] = useState<View | null>(null);
   const [nickname, setNickname] = useState("민규");
@@ -92,7 +93,8 @@ export default function TokenPage() {
           <RetryView
             nickname={nickname}
             respondentCount={2}
-            onRetry={() => setView("share")}
+            // Figma F05 실패(414:13591): [다시하기] → F01 온보딩("/") 이동.
+            onRetry={() => router.push("/")}
           />
         )}
       </div>

@@ -4,7 +4,8 @@
 
 export interface SurveyQuestion {
   id: string;
-  /** 상황극 지문 */
+  /** 상황극 지문. `{name}` 토큰 = 설문 대상으로 치환(본인="나" / 참여자=게시자 닉네임).
+   *  product-spec #5: 참여자 화면은 게시자 이름 삽입 (ex. ...{name}에게 맡긴다면?). */
   scenario: string;
   /** 5지선다 보기 */
   choices: string[];
@@ -17,7 +18,7 @@ export const NEUTRAL_CHOICE = "잘 모르겠어요";
 export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   {
     id: "q1",
-    scenario: "단톡방에 “지금 당장 1박2일 무계획 여행 ㄱ?” 나는?",
+    scenario: "단톡방에 “지금 당장 1박2일 무계획 여행 ㄱ?” {name}는?",
     choices: [
       "안 가. 계획 없는 여행은 상상만 해도 멀미나",
       "숙소랑 일정부터 짜오면 그때 생각해볼게",
@@ -28,7 +29,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q2",
-    scenario: "처음 가는 모임에 도착했다. 문을 열기 직전 나는?",
+    scenario: "처음 가는 모임에 도착했다. 문을 열기 직전 {name}는?",
     choices: [
       "심호흡부터. 아는 사람 있나 빠르게 스캔",
       "조용히 들어가 구석 자리에 앉는다",
@@ -39,7 +40,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q3",
-    scenario: "친구가 갑자기 고민을 털어놨다. 내 첫 반응은?",
+    scenario: "친구가 갑자기 고민을 털어놨다. {name}의 첫 반응은?",
     choices: [
       "해결책부터 정리해서 알려준다",
       "비슷한 내 경험을 들려준다",
@@ -50,7 +51,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q4",
-    scenario: "과제 마감 3일 전, 나의 상태는?",
+    scenario: "과제 마감 3일 전, {name}의 상태는?",
     choices: [
       "이미 다 끝내고 검토 중",
       "계획표대로 차근차근 진행 중",
@@ -61,7 +62,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q5",
-    scenario: "여행지에서 길을 잃었다. 나는?",
+    scenario: "여행지에서 길을 잃었다. {name}는?",
     choices: [
       "지도 앱을 켜고 최적 경로를 계산한다",
       "근처 사람에게 길을 물어본다",
@@ -72,7 +73,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q6",
-    scenario: "새로운 취미를 추천받았다. 나는?",
+    scenario: "새로운 취미를 추천받았다. {name}는?",
     choices: [
       "후기부터 꼼꼼히 찾아본다",
       "일단 한 번만 체험해본다",
@@ -83,7 +84,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q7",
-    scenario: "단톡방이 조용하다. 나는?",
+    scenario: "단톡방이 조용하다. {name}는?",
     choices: [
       "굳이 안 깨운다, 조용한 게 편하다",
       "필요한 공지만 올린다",
@@ -94,7 +95,7 @@ export const DUMMY_QUESTIONS: SurveyQuestion[] = [
   },
   {
     id: "q8",
-    scenario: "오랜만의 주말, 약속이 모두 취소됐다. 나는?",
+    scenario: "오랜만의 주말, 약속이 모두 취소됐다. {name}는?",
     choices: [
       "오히려 좋아, 혼자만의 시간 만끽",
       "밀린 집안일과 정리를 한다",

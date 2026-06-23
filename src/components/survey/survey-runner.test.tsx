@@ -50,6 +50,22 @@ describe("SurveyRunner", () => {
     expect(screen.queryByText(NEUTRAL_CHOICE)).not.toBeInTheDocument();
   });
 
+  it("subjectName이 지문의 {name}을 게시자 이름으로 치환한다 (참여자 설문)", () => {
+    const qs: SurveyQuestion[] = [
+      { id: "x", scenario: "{name}는 어떤 사람?", choices: ["1", "2", "3", "4", "5"] },
+    ];
+    render(<SurveyRunner questions={qs} subjectName="김루키" onComplete={vi.fn()} />);
+    expect(screen.getByText("김루키는 어떤 사람?")).toBeInTheDocument();
+  });
+
+  it("subjectName 미전달 시 {name}은 '나'로 치환된다 (본인 설문)", () => {
+    const qs: SurveyQuestion[] = [
+      { id: "x", scenario: "{name}는 어떤 사람?", choices: ["1", "2", "3", "4", "5"] },
+    ];
+    render(<SurveyRunner questions={qs} onComplete={vi.fn()} />);
+    expect(screen.getByText("나는 어떤 사람?")).toBeInTheDocument();
+  });
+
   it("문항이 비면 빈 상태를 보여준다", () => {
     render(<SurveyRunner questions={[]} onComplete={vi.fn()} />);
     expect(screen.getByText("불러올 문항이 없어요")).toBeInTheDocument();

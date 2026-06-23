@@ -3,10 +3,11 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-import { BgCloud } from "@/components/ui/bg-cloud";
+import { CenteredScreen } from "@/components/layout/centered-screen";
 import { Cta } from "@/components/ui/cta";
 import { CtaSmall } from "@/components/ui/cta-small";
 import { DownloadIcon } from "@/components/ui/icons/download";
+import { StarIcon } from "@/components/ui/icons/star";
 import { Logo } from "@/components/ui/logo";
 import { shareKakao } from "@/lib/share";
 import { QUADRANT_LABEL } from "@data/quadrants";
@@ -60,44 +61,42 @@ export function ResultView() {
     showToast(result === "shared" ? "카카오톡 공유를 열었어요" : "링크를 복사했어요");
   };
 
-  // ── 게이트 화면 (!entered) — Figma 노드 414:13565 ──────────────────────────
+  // ── 게이트 화면 (!entered) — Figma 노드 414:13565 / 589:4060 ────────────────
   if (!entered) {
     return (
-      // figma-loose: 로고 top Figma 104px(프레임, status bar 44px 포함) → pt-16(64px) 근사.
-      <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-6 pt-16 text-center">
-        {/* 배경: 하늘 그라데이션(Figma 그대로) + 구름(BgCloud) */}
-        <BgCloud />
+      <CenteredScreen
+        footer={<Cta onClick={() => setEntered(true)}>내 네컷 결과 보기</Cta>}
+      >
+        {/* 콘텐츠 오토레이아웃 (Figma node 589:4060) — 로고+타이틀 그룹 ↔ 일러스트 gap 56(gap-14) */}
+        <div className="flex w-full flex-col items-center gap-14">
+          {/* 로고 ↔ 타이틀블록 gap 56(gap-14, 타이틀 top 176→188 이동 디자이너 교정) */}
+          <div className="flex flex-col items-center gap-14">
+            <Logo />
+            {/* 타이틀 블록 — 제목 ↔ 서브 gap 12(gap-3) */}
+            <div className="flex flex-col items-center gap-3">
+              <h1 className="text-head1-24 font-display1 text-gray-900">
+                <span className="text-blue-500">{r.nickname}</span>님의 네컷이
+                <br />
+                완성됐어요
+              </h1>
+              <p className="text-body-16-medium text-gray-300">
+                친구 {r.respondentCount}명의 응답을 보러 갈까요?
+              </p>
+            </div>
+          </div>
 
-        <Logo />
-
-        {/* figma-loose: 타이틀 top Figma 176px(로고 bottom 132 → 타이틀 top 176 = gap 44px) → mt-10(40px) 근사. */}
-        <h1 className="mt-10 text-head1-24 font-display1 text-gray-900">
-          <span className="text-blue-500">{r.nickname}</span>님의 네컷이
-          <br />
-          완성됐어요
-        </h1>
-
-        {/* Figma: 타이틀↔서브텍스트 gap 12px → mt-3(12px) 일치 */}
-        <p className="mt-3 text-body-16-medium text-gray-300">
-          친구 {r.respondentCount}명의 응답을 보러 갈까요?
-        </p>
-
-        {/* 일러스트 placeholder — 실제 일러스트는 디자이너 프레임 대기.
-            figma-loose: aspect-[350/332] = Figma 흰 박스 350×332 비율(arbitrary). */}
-        <div className="mt-7 flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
-          <span className="text-body-18-semibold text-gray-200">
-            일러스트 이미지 삽입 예정
-          </span>
-          <span className="text-body-18-semibold text-gray-200">
-            *대략적인 위치만 참고해 주세요
-          </span>
+          {/* 일러스트 placeholder — Figma img_character_hamster_insight_noword(270×334) 대기.
+              figma-loose: aspect-[350/332] 흰 박스로 자리만. */}
+          <div className="flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
+            <span className="text-body-18-semibold text-gray-200">
+              일러스트 이미지 삽입 예정
+            </span>
+            <span className="text-body-18-semibold text-gray-200">
+              *대략적인 위치만 참고해 주세요
+            </span>
+          </div>
         </div>
-
-        {/* 하단 고정 블록 — Figma: CTA 단독(안내문 없음). */}
-        <div className="mt-auto flex w-full flex-col gap-3 pt-8">
-          <Cta onClick={() => setEntered(true)}>내 네컷 결과 보기</Cta>
-        </div>
-      </main>
+      </CenteredScreen>
     );
   }
 
@@ -137,8 +136,8 @@ export function ResultView() {
         />
       </div>
 
-      {/* ── B-3. 디스클레이머 (Figma top677) ──────────────────────────── */}
-      <div className="mx-5 mt-3 rounded-lg border border-gray-100 bg-white px-3 py-2 text-center">
+      {/* ── B-3. 디스클레이머 (Figma top677) — 네컷 카드와 gap 9 → mt-2 ── */}
+      <div className="mx-5 mt-2 rounded-lg border border-gray-100 bg-white px-3 py-2 text-center">
         <p className="text-body-14-medium text-gray-300">
           친구들의 답변을 바탕으로 AI가 그린 이미지로,
           <br />
@@ -146,8 +145,8 @@ export function ResultView() {
         </p>
       </div>
 
-      {/* ── B-4. 종합분석 블록 (Figma top804, gap16) ────────────────────── */}
-      <div className="mt-6 flex flex-col gap-4 px-5">
+      {/* ── B-4. 종합분석 블록 (Figma top804) — 디스클레이머와 gap 67 → mt-17, 내부 gap16 → gap-4 ── */}
+      <div className="mt-17 flex flex-col gap-4 px-5">
         {/* 타이틀 그룹 */}
         <div className="flex flex-col">
           <span className="text-body-18-medium text-gray-900">{r.nickname}님은</span>
@@ -156,8 +155,9 @@ export function ResultView() {
         </div>
         {/* 종합분석 카드 — Figma rounded14 → rounded-xl (--radius-xl = 14px), p12 → p-3 */}
         <div className="flex flex-col gap-2 rounded-xl bg-gray-50 p-3">
-          {/* Figma: 아이콘(20px) + "종합 분석" gray-400. 현재 아이콘 없음 → figma-loose: 아이콘 디자이너 합의 후 추가. */}
+          {/* Figma: icn_star_blue(20px) + "종합 분석" gray-400. gap 4px → gap-1 */}
           <span className="flex items-center gap-1 text-body-14-regular text-gray-400">
+            <StarIcon className="size-5 shrink-0" />
             종합 분석
           </span>
           <p className="text-body-16-semibold text-gray-900">{r.summaryTitle}</p>
@@ -165,9 +165,8 @@ export function ResultView() {
         </div>
       </div>
 
-      {/* ── B-5. 칸별 상세 섹션 (Figma top1143, gap64px between) ───────── */}
-      {/* figma-loose: gap64 → gap-16(64px) 일치 */}
-      <div className="mt-6 flex flex-col gap-16 px-5">
+      {/* ── B-5. 칸별 상세 섹션 (Figma top1143) — 종합분석과 gap 84 → mt-21, 칸 사이 gap64 → gap-16 ── */}
+      <div className="mt-21 flex flex-col gap-16 px-5">
         {r.quadrants.map((q) => (
           <article key={q.key} className="flex flex-col gap-5">
             {/* 헤더 행 */}
@@ -211,12 +210,12 @@ export function ResultView() {
         ))}
       </div>
 
-      {/* ── B-6. 팁 블록 (Figma top2555) ────────────────────────────────── */}
-      <div className="mx-5 mt-16 flex flex-col gap-2 rounded-xl bg-gray-50 p-3">
-        {/* Figma: 아이콘(20px) + "이렇게 해봐요!". 아이콘 없음 → figma-loose: 이모지 유지(디자이너 합의 전). */}
+      {/* ── B-6. 팁 블록 (Figma top2555) — 칸별 상세와 gap 48 → mt-12 ── */}
+      <div className="mx-5 mt-12 flex flex-col gap-2 rounded-xl bg-gray-50 p-3">
+        {/* Figma: icn_star_blue(20px) + "이렇게 해봐요!". gap 4px → gap-1 */}
         <p className="flex items-center gap-1 text-body-16-semibold text-gray-900">
-          {/* figma-loose: 아이콘 없어 이모지로 근사. 디자이너 합의 후 아이콘 컴포넌트 교체. */}
-          💡 이렇게 해봐요!
+          <StarIcon className="size-5 shrink-0" />
+          이렇게 해봐요!
         </p>
         <p className="text-body-16-regular text-gray-700">{r.tip}</p>
       </div>
