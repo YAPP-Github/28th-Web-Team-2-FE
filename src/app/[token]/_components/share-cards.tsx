@@ -7,15 +7,16 @@ import { cn } from "@/lib/utils";
 
 // 공유 안내 카드 캐러셀 (Figma F04 · node 602:6556 / 602:6570 / 602:6584)
 // 동작 스펙(Figma dev 주석 그대로):
-//   1. 카드1 → 카드2 → 카드3 순서로 1초 동안 노출
+//   1. 카드1 → 카드2 → 카드3 순서로 2초 동안 노출
 //   2. 다음 카드로 이동 시 좌측으로 슬라이드
 //   3. 자동/수동(스와이프) 전환 시 인디케이터 상태도 함께 변경
 // 무한 루프: 앞뒤로 클론 슬라이드를 1장씩 둬서(앞=카드3, 뒤=카드1) 어느 방향이든 끊김 없이 순환.
 // 접근성: prefers-reduced-motion 이면 자동재생·슬라이드 트랜지션을 끈다(수동 스와이프는 유지).
 
-const AUTOPLAY_MS = 1000; // 카드당 노출 1초
+const AUTOPLAY_MS = 2000; // 카드당 노출 2초
 const SLIDE_MS = 300; // 슬라이드 전환 시간
 const SWIPE_THRESHOLD = 50; // 스와이프 인정 거리(px)
+const GAP_PX = 12; // 카드 사이 간격 — 슬라이드 한 칸 이동량에 함께 반영
 
 type ShareCard = {
   src: string;
@@ -25,7 +26,7 @@ type ShareCard = {
   text: ReactNode;
 };
 
-// figma-loose: 일러스트 표시 높이는 카드별 148~156px → h-37(148px)로 통일(디자이너 교정 여지).
+// 일러스트 표시 높이는 h-37(148px)로 통일(디자이너 에셋 높이 통일 작업 진행 중 — 확정 시 재확인).
 const CARDS: ShareCard[] = [
   {
     src: "/assets/f04-1.png",
@@ -163,11 +164,12 @@ export function ShareCards() {
       >
         <div
           className={cn(
-            "flex motion-reduce:transition-none",
+            "flex gap-3 motion-reduce:transition-none",
             animate && "transition-transform ease-out",
           )}
           style={{
-            transform: `translateX(calc(${-index * 100}% + ${drag}px))`,
+            // 한 칸 = 100% + GAP_PX 이므로 인덱스마다 gap만큼 추가 이동시켜 카드를 정확히 맞춤
+            transform: `translateX(calc(${-index * 100}% + ${-index * GAP_PX + drag}px))`,
             transitionDuration: animate ? `${SLIDE_MS}ms` : "0ms",
           }}
           onTransitionEnd={handleTransitionEnd}
@@ -206,13 +208,11 @@ export function ShareCards() {
 function CardFrame({ card }: { card: ShareCard }) {
   return (
     <div className="w-full shrink-0 select-none">
-      {/* figma-loose: 카드 radius 20px·backdrop-blur 10px 는 토큰 부재 → arbitrary(디자이너 검증 요망) */}
+      {/* 카드 radius 20px·backdrop-blur 10px 는 raw px 유지(디자이너 합의 — 별도 토큰 미등록). */}
       <div className="flex h-76 w-full flex-col items-center justify-center gap-4 rounded-[20px] border border-white bg-white/40 backdrop-blur-[10px]">
         <div className="flex flex-col items-center gap-4">
-          {/* figma-loose: 배지 = YPairingFont Bold 14px. 14px 디스플레이 토큰 부재 →
-              size는 body-14-medium 차용 + font-bold로 weight 700 복원(Figma Bold 일치).
-              tracking은 body(-0.03em) vs Figma(-0.02em) 미세차. → head2-14 토큰 신설은 디자이너 결정 대기. */}
-          <span className="rounded-md bg-blue-100 px-3 py-1 font-display2 text-body-14-medium font-bold text-blue-500">
+          {/* 배지 = YPairingFont Bold 14px → head2-14 토큰(Figma head-point2/14 등록 확인). */}
+          <span className="rounded-md bg-blue-100 px-3 py-1 font-display2 text-head2-14 text-blue-500">
             결과를 확인하려면?
           </span>
           <Image
