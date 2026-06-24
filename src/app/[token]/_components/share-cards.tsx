@@ -19,12 +19,13 @@ import { usePreloadImages } from "@/lib/preload-images";
 const AUTOPLAY_MS = 2000; // 카드당 노출 2초
 const SLIDE_MS = 300; // 슬라이드 전환 시간
 const SWIPE_THRESHOLD = 50; // 스와이프 인정 거리(px)
-const GAP_PX = 8; // 카드 사이 간격 — 슬라이드 한 칸 이동량에 함께 반영
+const GAP_PX = 16; // 카드 사이 간격(Figma 830:9452: 카드1↔카드2 16px) — 슬라이드 한 칸 이동량에 함께 반영
 const SIDE_SCALE = 0.8; // 좌우 비활성 카드 축소율 (Figma 832:13771)
-// figma-loose: 카드 폭 = 뷰포트의 80% → 좌우 약 25px peek 확보(모바일 기준).
+// Figma 830:9452 기준: 풀폭 뷰포트(390)에서 활성 카드 316px(=81%), 좌우 peek ~21px.
+// 캐러셀은 share-view에서 -mx-5로 화면 끝까지 펼쳐진다.
 // 사이드 카드 scale은 "안쪽(활성 카드 쪽) 모서리"를 기준점으로 축소하므로(아래 CardFrame transformOrigin),
-// 카드를 넓게 둬도 peek이 사라지지 않는다. 정확한 peek 양은 디자이너 확인 대상.
-const CARD_W_PCT = 80;
+// 카드를 넓게 둬도 peek이 사라지지 않는다.
+const CARD_W_PCT = 81;
 const SIDE_OFFSET_PCT = (100 - CARD_W_PCT) / 2; // 활성 카드를 가운데로 보내는 절반 여백(%)
 
 type ShareCard = {
@@ -36,7 +37,8 @@ type ShareCard = {
   text: string;
 };
 
-// 일러스트 표시 높이는 h-37(148px)로 통일(디자이너 에셋 높이 통일 작업 진행 중 — 확정 시 재확인).
+// 일러스트는 카드 콘텐츠 폭(p-6 제외 ≈ 268px)에 w-full로 꽉 채운다 = Figma 캐릭터 268 width.
+// (높이는 비율대로 자동 — 에셋마다 미세하게 다름. 에셋 높이 통일은 디자이너 재출력 시 확정.)
 const CARDS: ShareCard[] = [
   {
     n: 1,
@@ -290,7 +292,7 @@ function CardFrame({
           width={card.width}
           height={card.height}
           draggable={false}
-          className="h-37 w-auto"
+          className="h-auto w-full"
         />
       </div>
     </div>
