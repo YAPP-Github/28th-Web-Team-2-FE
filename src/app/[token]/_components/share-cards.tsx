@@ -1,67 +1,71 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { usePreloadImages } from "@/lib/preload-images";
 
-// 공유 안내 카드 캐러셀 (Figma F04 · node 602:6556 / 602:6570 / 602:6584)
-// 동작 스펙(Figma dev 주석 그대로):
-//   1. 카드1 → 카드2 → 카드3 순서로 2초 동안 노출
-//   2. 다음 카드로 이동 시 좌측으로 슬라이드
-//   3. 자동/수동(스와이프) 전환 시 인디케이터 상태도 함께 변경
-// 무한 루프: 앞뒤로 클론 슬라이드를 1장씩 둬서(앞=카드3, 뒤=카드1) 어느 방향이든 끊김 없이 순환.
+// 공유 안내 카드 캐러셀 (Figma F04 리디자인 · node 832:13771)
+// 레이아웃: 가운데 활성 카드 풀사이즈 + 좌우 인접 카드 scale(0.8) peek.
+//   ⮑ 사이드 카드는 별도 px를 박지 않고 활성 카드 스펙에 transform: scale(0.8)만 적용한다.
+//      → 19.2/12.8/0.8px 같은 소수점 px가 발생하지 않아 토큰 정합성이 유지된다(활성 카드만 토큰으로 맞춤).
+// 동작 스펙(사용자 확정):
+//   1. 카드1 → 카드2 → 카드3 자동재생 2초, 다음 카드로 좌측 슬라이드
+//   2. 무한 루프: 앞뒤로 클론을 1장씩 둬(앞=카드3, 뒤=카드1) 어느 방향이든 끊김 없이 순환
+//   3. 자동/수동(스와이프) 전환 모두 인디케이터 동기화
 // 접근성: prefers-reduced-motion 이면 자동재생·슬라이드 트랜지션을 끈다(수동 스와이프는 유지).
 
 const AUTOPLAY_MS = 2000; // 카드당 노출 2초
 const SLIDE_MS = 300; // 슬라이드 전환 시간
 const SWIPE_THRESHOLD = 50; // 스와이프 인정 거리(px)
 const GAP_PX = 12; // 카드 사이 간격 — 슬라이드 한 칸 이동량에 함께 반영
+const SIDE_SCALE = 0.8; // 좌우 비활성 카드 축소율 (Figma 832:13771)
+// figma-loose: 카드 폭 = 뷰포트의 84% → 좌우 peek 슬라이버 확보. Figma 아트보드는 데스크탑 폭이라
+// 모바일 정확한 peek 폭은 디자이너 확인 필요(좌우가 빼꼼 보이는 정도면 OK 합의).
+const CARD_W_PCT = 84;
+const SIDE_OFFSET_PCT = (100 - CARD_W_PCT) / 2; // 활성 카드를 가운데로 보내는 절반 여백(%)
 
 type ShareCard = {
+  n: number; // 단계 번호(뱃지)
   src: string;
   /** 일러스트 원본 크기(next/image 비율 계산용) — 표시 높이는 h-37(148px)로 정규화 */
   width: number;
   height: number;
-  text: ReactNode;
+  text: string;
 };
 
 // 일러스트 표시 높이는 h-37(148px)로 통일(디자이너 에셋 높이 통일 작업 진행 중 — 확정 시 재확인).
 const CARDS: ShareCard[] = [
   {
+    n: 1,
     src: "/assets/img_character_hamster_under.png",
     width: 952,
     height: 615,
-    text: (
-      <>
-        1. 아래 버튼으로 <strong className="font-bold">내 링크</strong>를{" "}
-        <strong className="font-bold text-blue-500">꼭</strong> 복사해줘!
-      </>
-    ),
+    text: "아래 버튼으로 내 링크를 꼭 복사해줘!",
   },
   {
+    n: 2,
     src: "/assets/img_character_hamster_three.png",
     width: 952,
     height: 615,
-    text: <>2. 친구들이 참여할 수 있게 링크를 보내줘!</>,
+    text: "친구가 참여할 수 있게 링크를 보내줘!",
   },
   {
+    n: 3,
     src: "/assets/img_character_hamster_clock.png",
     width: 952,
     height: 638,
-    text: (
-      <>
-        3. <strong className="font-bold text-blue-500">3명 이상</strong> 모이면,{" "}
-        <strong className="font-bold text-blue-500">24시간 뒤</strong>{" "}
-        <strong className="font-bold">내 링크</strong>로 와줘!
-      </>
-    ),
+    text: "3명 이상 모이면, 24시간 뒤 내 링크로 와줘!",
   },
 ];
 
 // 2·3번 카드는 슬라이드되어 들어올 때 마운트되므로, 진입 즉시 세 장 모두 미리 받아둔다.
-const PRELOAD_CARDS = CARDS.map(({ src, width, height }) => ({ src, width, height }));
+const PRELOAD_CARDS = CARDS.map(({ src, width, height }) => ({
+  src,
+  width,
+  height,
+}));
 
 // 양끝 클론을 더한 슬라이드 배열: [카드3, 카드1, 카드2, 카드3, 카드1]
 const SLIDES: ShareCard[] = [CARDS[CARDS.length - 1], ...CARDS, CARDS[0]];
@@ -94,7 +98,7 @@ export function ShareCards() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // 자동재생 — index가 바뀔 때마다 타이머를 재무장해 카드당 노출 1초를 보장.
+  // 자동재생 — index가 바뀔 때마다 타이머를 재무장해 카드당 노출 2초를 보장.
   // 드래그 중(paused)이거나 reduced-motion이면 멈춤.
   useEffect(() => {
     if (paused || reducedMotion) return;
@@ -124,9 +128,10 @@ export function ShareCards() {
     setIndex(FIRST_REAL + real);
   };
 
-  // 점프 직후(animate=false) 다음 페인트에서 트랜지션 복구
+  // 클론 점프 직후(animate=false) 다음 페인트에서 트랜지션 복구.
+  // 드래그 중에는 복구하지 않는다 — 복구되면 transition이 되살아나 손가락 추종이 SLIDE_MS만큼 지연됨.
   useEffect(() => {
-    if (animate) return;
+    if (animate || dragging.current) return;
     const id = window.requestAnimationFrame(() => setAnimate(true));
     return () => window.cancelAnimationFrame(id);
   }, [animate]);
@@ -155,9 +160,11 @@ export function ShareCards() {
     setPaused(false);
   };
 
+  const transitionDuration = animate ? `${SLIDE_MS}ms` : "0ms";
+
   return (
     <div className="flex w-full flex-col items-center gap-4">
-      {/* 뷰포트 — 한 장씩만 보이도록 가로 클리핑. 세로 스크롤은 허용(touch-action) */}
+      {/* 뷰포트 — 가로 클리핑(좌우 카드는 슬라이버만 보임). 세로 스크롤은 허용(touch-action) */}
       <div
         className="w-full overflow-hidden"
         style={{ touchAction: "pan-y" }}
@@ -171,19 +178,30 @@ export function ShareCards() {
       >
         <div
           className={cn(
-            "flex gap-3 motion-reduce:transition-none",
+            "flex items-center motion-reduce:transition-none",
             animate && "transition-transform ease-out",
           )}
           style={{
-            // 한 칸 = 100% + GAP_PX 이므로 인덱스마다 gap만큼 추가 이동시켜 카드를 정확히 맞춤
-            transform: `translateX(calc(${-index * 100}% + ${-index * GAP_PX + drag}px))`,
-            transitionDuration: animate ? `${SLIDE_MS}ms` : "0ms",
+            gap: `${GAP_PX}px`,
+            // 활성 카드(index)를 뷰포트 가운데로: 절반 여백 - (한 칸 폭 × index) - 누적 gap + 드래그
+            transform: `translateX(calc(${SIDE_OFFSET_PCT}% - ${index * CARD_W_PCT}% - ${index * GAP_PX - drag}px))`,
+            transitionDuration,
           }}
           onTransitionEnd={handleTransitionEnd}
         >
-          {SLIDES.map((card, i) => (
-            <CardFrame key={i} card={card} />
-          ))}
+          {SLIDES.map((card, i) => {
+            // 양끝(클론)은 스크린리더에서 항상 숨김 — 활성화돼도 즉시 실카드로 점프하므로 중복 낭독 방지
+            const isClone = i === 0 || i === SLIDES.length - 1;
+            return (
+              <CardFrame
+                key={i}
+                card={card}
+                active={i === index}
+                announce={i === index && !isClone}
+                transitionDuration={transitionDuration}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -212,29 +230,51 @@ export function ShareCards() {
   );
 }
 
-function CardFrame({ card }: { card: ShareCard }) {
+function CardFrame({
+  card,
+  active,
+  announce,
+  transitionDuration,
+}: {
+  card: ShareCard;
+  active: boolean;
+  announce: boolean;
+  transitionDuration: string;
+}) {
   return (
-    <div className="w-full shrink-0 select-none">
+    // 한 칸 = 뷰포트의 CARD_W_PCT%. 비활성은 scale(0.8)로 축소(소수점 px 미발생 — 토큰 정합성 유지).
+    <div
+      className="shrink-0 select-none transition-transform ease-out motion-reduce:transition-none"
+      style={{
+        width: `${CARD_W_PCT}%`,
+        transform: active ? "scale(1)" : `scale(${SIDE_SCALE})`,
+        transitionDuration,
+      }}
+      aria-hidden={!announce}
+    >
       {/* 카드 radius 20px·backdrop-blur 10px 는 raw px 유지(디자이너 합의 — 별도 토큰 미등록). */}
-      <div className="flex h-76 w-full flex-col items-center justify-center gap-4 rounded-[20px] border border-white bg-white/40 backdrop-blur-[10px]">
-        <div className="flex flex-col items-center gap-4">
-          {/* 배지 = YPairingFont Bold 14px → head2-14 토큰(Figma head-point2/14 등록 확인). */}
-          <span className="rounded-md bg-blue-100 px-3 py-1 font-display2 text-head2-14 text-blue-500">
-            결과를 확인하려면?
+      <div className="flex flex-col items-center gap-6 rounded-[20px] border border-white bg-white/40 p-6 backdrop-blur-[10px]">
+        <div className="flex flex-col items-center gap-2">
+          {/* 단계 뱃지 = blue/200 정사각 20px(size-5) + YPairingFont Bold 14px(head2-14) 흰 숫자. */}
+          <span className="flex size-5 items-center justify-center rounded-[4px] bg-blue-200 font-display2 text-head2-14 text-white">
+            {card.n}
           </span>
-          <Image
-            src={card.src}
-            alt=""
-            aria-hidden
-            width={card.width}
-            height={card.height}
-            draggable={false}
-            className="h-37 w-auto"
-          />
+          {/* pill = 흰 배경 + blue/500 텍스트.
+              DSGN: Figma는 Pretendard Bold 16px(lh 1.55)인데 토큰 스케일에 16px-bold 없음(semibold까지)
+              → 기존 패턴대로 body-16-medium + font-bold로 근사. 16-bold 토큰 신설 여부 디자이너 확인 요망. */}
+          <p className="rounded-md bg-white px-3 py-1 text-center font-bold text-body-16-medium text-blue-500">
+            {card.text}
+          </p>
         </div>
-        <p className="rounded-full bg-white px-4 py-2 text-body-14-medium text-gray-700">
-          {card.text}
-        </p>
+        <Image
+          src={card.src}
+          alt=""
+          aria-hidden
+          width={card.width}
+          height={card.height}
+          draggable={false}
+          className="h-37 w-auto"
+        />
       </div>
     </div>
   );
