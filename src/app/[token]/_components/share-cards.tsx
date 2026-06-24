@@ -195,7 +195,7 @@ export function ShareCards() {
             <span
               className={cn(
                 "h-1.5 rounded-full transition-all duration-300",
-                i === activeReal ? "w-4 bg-gray-900" : "w-1.5 bg-gray-200",
+                i === activeReal ? "w-4 bg-gray-900" : "w-1.5 bg-gray-50",
               )}
             />
           </button>
