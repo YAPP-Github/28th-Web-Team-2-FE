@@ -102,22 +102,20 @@ export function ShareView({ nickname, surveyCode }: ShareViewProps) {
 
       {/* figma-loose: 제목 블록 top Figma 136px(디자이너 교정) → 로고 아래 mt-8(32px) 근사, 제목↔본문 gap-3(12px) Figma 일치 */}
       <div className="mt-8 flex flex-col gap-3">
-        {/* Figma: head-point1/24 = display1(Y Spotlight) 24px */}
-        <h1 className="text-head1-24 font-display1 text-gray-900">
-          친구들에게 링크를 공유하고
+        {/* Figma 627:9619: head-point1/24 = display1(Y Spotlight) 24px, 색 순수 black(#000) — DSGN 검증 대상(F01은 gray-900) */}
+        <h1 className="text-head1-24 font-display1 text-black">
+          친구에게 링크를 공유하고
           <br />
           네컷을 받아보세요!
         </h1>
-        {/* Figma: body/16-medium 16px Medium gray-300 */}
+        {/* Figma 627:9620: body/16-medium 16px Medium gray-300 (1줄) */}
         <p className="text-body-16-medium text-gray-300">
-          친구들의 답이 모이면,
-          <br />
-          24시간 뒤 나를 담은 네컷 결과가 열려요
+          답이 모이면, 24시간 뒤 네컷 결과가 열려요
         </p>
       </div>
 
-      {/* 공유 안내 카드 캐러셀 (Figma F04 카드1~3 자동 슬라이드). 제목블록↔카드 gap 44px → mt-11. */}
-      <div className="mt-11">
+      {/* 공유 안내 카드 캐러셀 (Figma F04 카드1~3 자동 슬라이드). 제목블록↔카드 gap 64px(Figma 602:6556) → mt-16. */}
+      <div className="mt-16">
         <ShareCards />
       </div>
 

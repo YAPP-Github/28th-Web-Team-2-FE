@@ -135,9 +135,9 @@ export function ResultView({ surveyCode, nickname, respondentCount }: ResultView
             </div>
           </div>
 
-          {/* 일러스트 placeholder — Figma img_character_hamster_insight_noword(270×334) 대기.
-              figma-loose: aspect-[350/332] 흰 박스로 자리만. */}
-          <div className="flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
+          {/* 일러스트 placeholder — Figma img_character_hamster_insight_noword(270×334, 중앙) 대기.
+              Figma 규격대로 270폭·270/334 비율 박스로 자리만(실 에셋 적용 시 동일 규격). */}
+          <div className="flex aspect-[270/334] w-[270px] flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
             <span className="text-body-18-semibold text-gray-200">
               일러스트 이미지 삽입 예정
             </span>
@@ -240,11 +240,11 @@ export function ResultView({ surveyCode, nickname, respondentCount }: ResultView
         </CtaSmall>
       </div>
 
-      {/* 토스트 */}
+      {/* 토스트 — F04·Figma 627:9624 규격 통일(bg gray-900/70·px-7·py-2·body-14-medium) */}
       {toast && (
         <div
           role="status"
-          className="pointer-events-none fixed inset-x-0 bottom-6 mx-auto w-fit max-w-[90%] rounded-full bg-gray-900 px-4 py-2 text-center text-caption-12-medium text-white shadow-lg md:absolute"
+          className="pointer-events-none fixed inset-x-0 bottom-6 mx-auto w-fit max-w-[90%] rounded-full bg-gray-900/70 px-7 py-2 text-center text-body-14-medium text-white md:absolute"
         >
           {toast}
         </div>

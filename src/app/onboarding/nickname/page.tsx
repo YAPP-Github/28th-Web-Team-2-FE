@@ -115,11 +115,14 @@ export default function NicknamePage() {
         />
       </div>
 
-      {/* Figma: CTA 하단 여백 24px(디자이너 교정) → main pb-6(24px) 일치 */}
-      {/* 키보드 따라 버튼 올라오게 (F02 요청): visualViewport로 잰 키보드 높이만큼 위로 */}
+      {/* Figma: CTA 하단 여백 24px(키보드Off) / 키보드On 시 키보드 위 12px (디자이너 진입화면) */}
+      {/* 키보드 따라 버튼 올라오게 (F02 요청): visualViewport로 잰 키보드 높이만큼 위로.
+          pb-6(24)가 기본 하단 여백이므로, 키보드 위 12px를 만들려면 (inset-12)만큼만 올린다. */}
       <div
         className="mt-auto transition-transform duration-200 ease-out"
-        style={{ transform: `translateY(-${keyboardInset}px)` }}
+        style={{
+          transform: `translateY(-${keyboardInset > 0 ? keyboardInset - 12 : 0}px)`,
+        }}
       >
         <Cta onClick={handleSubmit} disabled={!canSubmit}>
           {isPending ? "만드는 중..." : "확인"}
