@@ -160,11 +160,11 @@
 
   /* head-point2 (YPairingFont · Bold) — font-display2 와 함께 */
   --text-head2-26: 1.625rem;
-  --text-head2-26--line-height: 1.45;
+  --text-head2-26--line-height: 1.4;
   --text-head2-26--letter-spacing: -0.02em;
   --text-head2-26--font-weight: 700;
   --text-head2-24: 1.5rem;
-  --text-head2-24--line-height: 1.45;
+  --text-head2-24--line-height: 1.4;
   --text-head2-24--letter-spacing: -0.02em;
   --text-head2-24--font-weight: 700;
   --text-head2-20: 1.25rem;
