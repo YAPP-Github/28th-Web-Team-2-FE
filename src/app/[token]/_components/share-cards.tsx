@@ -59,7 +59,7 @@ const CARDS: ShareCard[] = [
     src: "/assets/img_character_hamster_clock.png",
     width: 1072,
     height: 638,
-    text: "3명 이상 모이면, 24시간 뒤 내 링크로 와줘!",
+    text: "3명 이상 모이면, 24시간 뒤 내 링크로 와",
   },
 ];
 
@@ -275,7 +275,7 @@ function CardFrame({
           테두리는 border 대신 inset ring(box-shadow 기반) — 콘텐츠 폭을 안 깎아 캐릭터가 정확히 268px(=316−패딩48).
           Figma 스트로크도 콘텐츠를 줄이지 않으므로 이쪽이 정합. */}
       <div className="flex flex-col items-center gap-6 rounded-[20px] bg-white/40 p-6 ring-1 ring-inset ring-white backdrop-blur-[10px]">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex w-full flex-col items-center gap-2">
           {/* 단계 뱃지 = blue/200 정사각 20px(size-5) + YPairingFont Bold 14px(head2-14) 흰 숫자. */}
           <span className="flex size-5 items-center justify-center rounded-[4px] bg-blue-200 font-display2 text-head2-14 text-white">
             {card.n}
