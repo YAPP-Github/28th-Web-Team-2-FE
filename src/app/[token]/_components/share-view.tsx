@@ -115,7 +115,7 @@ export function ShareView({ surveyCode }: ShareViewProps) {
         {/* 다운로드 버튼 위 툴팁 — 상시 안내 요소 (토스트와 별개)
             Figma 832:14436: 꼬리가 다운로드 버튼(오른쪽)을 가리키도록 tailAlign="right".
             figma-loose: 툴팁 전체를 오른쪽 정렬해 다운로드 버튼(w-16) 위에 위치 */}
-        <div className="mb-2 flex justify-end">
+        <div className="mb-4 flex justify-end">
           <Tooltip tailAlign="right">
             <b>인스타 스토리</b> 공유용 이미지 저장하기!
           </Tooltip>

@@ -24,8 +24,8 @@ interface TooltipProps {
 }
 
 function Tooltip({ children, tailAlign = "right", className }: TooltipProps) {
-  // right: 꼬리 중심을 오른쪽 끝 64px(w-16) 아이콘 버튼의 중앙(32px)에 정확히 맞춤.
-  // right-6(24px) + 꼬리 반폭(8px) = 32px = 버튼 정중앙.
+  // right: 꼬리 중심을 오른쪽 끝 64px(w-16) 아이콘 버튼의 중앙(32px)에 맞춤.
+  // right-6(24px) + 꼬리 반폭(7.75px) = 31.75px ≈ 버튼 정중앙 32px.
   const tailPositionClass =
     tailAlign === "right"
       ? "right-6"
@@ -42,11 +42,11 @@ function Tooltip({ children, tailAlign = "right", className }: TooltipProps) {
       </div>
 
       {/* 꼬리 — 아래 방향 삼각형 (CSS border trick), blue-900 동일 색 */}
-      {/* Figma 15.5×9px → 16×9px(정수 px, 또렷한 렌더 + right-6와 합쳐 버튼 정중앙 정렬) */}
+      {/* Figma Vector 22991 정확값: 15.5×9px(border-x-[7.75px]=폭 15.5, border-t-[9px]=높이 9), blue-900 */}
       <div
         className={cn(
           "absolute -bottom-[9px] h-0 w-0",
-          "border-x-[8px] border-t-[9px] border-x-transparent border-t-blue-900",
+          "border-x-[7.75px] border-t-[9px] border-x-transparent border-t-blue-900",
           tailPositionClass,
         )}
         aria-hidden="true"
