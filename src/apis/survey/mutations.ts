@@ -26,8 +26,12 @@ interface StartSubmissionVariables {
   surveyCode: string;
 }
 
+// StrictMode 재마운트 후 useMutationState로 결과를 복구하기 위한 키
+export const SELF_SUBMISSION_MUTATION_KEY = ["selfSurveySubmission"] as const;
+
 export function useStartSubmissionAPI() {
   return useMutation<SubmissionStartedResponse, ApiError, StartSubmissionVariables>({
+    mutationKey: SELF_SUBMISSION_MUTATION_KEY,
     mutationFn: ({ surveyCode }) =>
       // 바디 없음 — 서버가 SELF/PEER 자동 판별
       api.post<SubmissionStartedResponse>(`/api/v1/surveys/${surveyCode}/submissions`),
