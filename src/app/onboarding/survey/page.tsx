@@ -3,29 +3,48 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useStartSubmissionAPI, useSubmitAnswersAPI } from "@/apis/survey/mutations";
+import { useMutationState } from "@tanstack/react-query";
+import { SELF_SUBMISSION_MUTATION_KEY, useStartSubmissionAPI, useSubmitAnswersAPI } from "@/apis/survey/mutations";
 import { isApiError } from "@/apis/error";
-import type { SurveyQuestion, SubmissionStartedResponse } from "@/apis/survey/types";
+import type { AnswerEntry, SubmissionStartedResponse } from "@/apis/survey/types";
 import { SurveyRunner } from "@/components/survey/survey-runner";
 import { readSession } from "@/lib/local-session";
+import { clearSelfSurveyCache, readSelfSurveyCache, saveSelfSurveyCache } from "@/lib/self-survey-cache";
 import { Cta } from "@/components/ui/cta";
 
 // 자기 설문 (product-spec #3) — 필수 선행. 조하리 "나 vs 친구"의 본인 쪽 데이터.
 // 세션에서 surveyCode 읽기 → useStartSubmissionAPI로 문항 받기 → SurveyRunner → 제출 → /[surveyCode].
+//
+// [StrictMode 주의] startSubmission 콜백(mutate 2번째 인자 onSuccess/onError)은
+// React StrictMode의 mount→unmount→remount 사이클에서 TanStack Query가 호출을 생략한다.
+// 따라서 startMutation의 상태는 콜백 대신 useMutation이 반환하는 data/isError/isPending으로 직접 파악.
 
 export default function SelfSurveyPage() {
   const router = useRouter();
 
   // ── hooks (early return 앞) ──────────────────────────────────────────────────
-  const { mutate: startSubmission, isPending: isStarting } = useStartSubmissionAPI();
+  const {
+    mutate: startSubmission,
+    isPending: isStarting,
+    data: submissionData,
+    isError: isStartError,
+    error: startError,
+  } = useStartSubmissionAPI();
+
   const { mutate: submitAnswers, isPending: isSubmitting } = useSubmitAnswersAPI();
 
-  const [questions, setQuestions] = useState<SurveyQuestion[]>([]);
-  const [submissionId, setSubmissionId] = useState<number | null>(null);
-  const [startError, setStartError] = useState<string | null>(null);
-  const [startSettled, setStartSettled] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmittingDone, setIsSubmittingDone] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // SSR-safe: 서버는 null, 클라이언트 마운트 후 localStorage에서 읽음 (hydration mismatch 방지)
+  const [cachedData, setCachedData] = useState<SubmissionStartedResponse | null>(null);
+
+  // StrictMode 재마운트로 useMutation 옵저버가 교체돼도 MutationCache에서 결과 복구
+  const recoveredData =
+    useMutationState({
+      filters: { mutationKey: SELF_SUBMISSION_MUTATION_KEY, status: "success" },
+      select: (mutation) => mutation.state.data as SubmissionStartedResponse,
+    }).at(-1) ?? null;
 
   // 마운트 시 1회만 호출 (StrictMode double-invoke 방지)
   const startCalledRef = useRef(false);
@@ -37,40 +56,36 @@ export default function SelfSurveyPage() {
       router.replace("/onboarding/nickname");
       return;
     }
-    setStartError(null);
-    startSubmission(
-      { surveyCode: session.surveyCode },
-      {
-        onSuccess: (data: SubmissionStartedResponse) => {
-          setStartSettled(true);
-          // 성공했는데 문항이 비면 진행 불가 — 무한 로딩 대신 에러로 (재시도 가능)
-          if (data.questions.length === 0) {
-            setStartError("문항을 불러오지 못했어요. 다시 시도해주세요.");
-            return;
-          }
-          setSubmissionId(data.submissionId);
-          setQuestions(data.questions);
-        },
-        onError: (error) => {
-          setStartSettled(true);
-          setStartError(
-            isApiError(error)
-              ? error.message
-              : "문항을 불러오지 못했어요. 다시 시도해주세요.",
-          );
-        },
-      },
-    );
+    startSubmission({ surveyCode: session.surveyCode });
   }, [router, startSubmission]);
 
   useEffect(() => {
     if (startCalledRef.current) return;
     startCalledRef.current = true;
+
+    // 클라이언트 마운트 후 localStorage 캐시 확인 — 있으면 API 호출 생략
+    const session = readSession();
+    const cached = session?.surveyCode ? readSelfSurveyCache(session.surveyCode) : null;
+    if (cached) {
+      setCachedData(cached);
+      return;
+    }
+
     runStart();
   }, [runStart]);
 
+  // API 응답이 오면 캐시에 저장 (재시도·복구 데이터 포함)
+  useEffect(() => {
+    const apiData = recoveredData ?? submissionData;
+    if (!apiData) return;
+    const session = readSession();
+    if (session?.surveyCode) saveSelfSurveyCache(session.surveyCode, apiData);
+  }, [recoveredData, submissionData]);
+
+  const effectiveData = cachedData ?? recoveredData ?? submissionData;
+
   // ── 로딩 — 문항 불러오는 중 ────────────────────────────────────────────────
-  if (isStarting || (!startSettled && !startError)) {
+  if (!effectiveData && !isStartError && (isStarting || !submissionData)) {
     return (
       <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
         <div className="size-10 animate-spin rounded-full border-2 border-gray-100 border-t-blue-500" />
@@ -80,10 +95,22 @@ export default function SelfSurveyPage() {
   }
 
   // ── 에러 — 문항 불러오기 실패 ──────────────────────────────────────────────
-  if (startError) {
+  if (isStartError && !effectiveData) {
     return (
       <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-body-16-medium text-gray-900">{startError}</p>
+        <p className="text-body-16-medium text-gray-900">
+          {isApiError(startError) ? startError.message : "문항을 불러오지 못했어요. 다시 시도해주세요."}
+        </p>
+        <Cta onClick={runStart}>다시 시도</Cta>
+      </div>
+    );
+  }
+
+  // ── 빈 문항 — 성공했으나 questions가 비어있는 경우 ──────────────────────────
+  if (!effectiveData || effectiveData.questions.length === 0) {
+    return (
+      <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-body-16-medium text-gray-900">문항을 불러오지 못했어요. 다시 시도해주세요.</p>
         <Cta onClick={runStart}>다시 시도</Cta>
       </div>
     );
@@ -115,19 +142,19 @@ export default function SelfSurveyPage() {
     );
   }
 
-  const handleComplete = (answers: { questionId: number; answerOptionId: number }[]) => {
-    if (submissionId === null) return;
+  const handleComplete = (answers: AnswerEntry[]) => {
     const session = readSession();
     setIsSubmittingDone(true);
 
     submitAnswers(
       {
-        submissionId,
+        submissionId: effectiveData.submissionId,
         answers,
         surveyCode: session?.surveyCode,
       },
       {
         onSuccess: () => {
+          clearSelfSurveyCache();
           const code = session?.surveyCode;
           if (code) {
             router.replace(`/${code}`);
@@ -149,7 +176,7 @@ export default function SelfSurveyPage() {
 
   return (
     <SurveyRunner
-      questions={questions}
+      questions={effectiveData.questions}
       subjectLabel="나에 대해"
       onComplete={handleComplete}
       onBack={() => router.back()}
