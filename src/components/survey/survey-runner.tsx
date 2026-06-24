@@ -93,21 +93,22 @@ export function SurveyRunner({
         aria-label={`설문 진행 ${index + 1} / ${total}`}
       />
 
-      {/* 진행 표시 + 지문 — Figma top144, gap-8 */}
-      {/* figma-loose: 지문 블록 top Figma 144px → 진행바 아래 mt-10(40px) 근사, gap-2(8px) Figma 일치 */}
-      <div className="mt-10 flex flex-col items-center gap-2 px-5 text-center">
+      {/* 진행 표시 + 지문 — Figma top144 */}
+      {/* Figma: 진행바 하단 → 지문 블록 gap 36px → mt-9 일치, 지문↔보기 안 gap-2(8px) 일치 */}
+      <div className="mt-9 flex flex-col items-center gap-2 px-5 text-center">
         <p className="text-body-16-medium">
           <span className="text-blue-500">{index + 1}</span>
           <span className="text-gray-300"> / {total}</span>
         </p>
-        {/* Figma: head-point1/24 = display1(Y Spotlight) 24px */}
-        <h1 className="text-head1-24 font-display1 text-gray-900">
+        {/* Figma: head-point1/24 = display1(Y Spotlight) 24px (기존 head1-20에서 교정) */}
+        {/* 질문 최대 3줄(line-clamp-3) + 단어 단위 줄바꿈(break-keep: 한 단어가 잘리지 않게) */}
+        <h1 className="line-clamp-3 break-keep text-head1-24 font-display1 text-gray-900">
           {question.content}
         </h1>
       </div>
 
-      {/* 보기 — Figma top329, gap-16(=gap-4), btn_survey */}
-      {/* figma-loose: 보기 top Figma 329px → 지문 아래 mt-12(48px) 근사 */}
+      {/* 보기 — Figma top329, btn_survey 간 gap 16(gap-4) */}
+      {/* Figma: 지문 블록 → 보기 gap 48px → mt-12 일치 */}
       <ul className="mt-12 flex flex-col gap-4 px-5">
         {question.options.map((option) => {
           const isActive = selected[question.questionId] === option.answerOptionId;

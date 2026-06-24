@@ -12,6 +12,8 @@ import {
   type ShareResult,
 } from "@/lib/share";
 
+import { ShareCards } from "./share-cards";
+
 // 공유 관리 뷰 (product-spec #4 · Figma F04 node 414:13419) — GUI 1차 전경 정합.
 // 핵심 루프: 링크를 퍼뜨려 참여자 모으기. 인스타 스토리는 세로형(story-share) 공유 + 링크 클립보드 복사,
 // 카카오 피드는 가로형 OG(og-image) 사용 (domain.md §1).
@@ -92,13 +94,13 @@ export function ShareView({ nickname, surveyCode }: ShareViewProps) {
 
   return (
     // figma-loose: 로고 top Figma 80px(프레임, status bar 44px 포함) → pt-9(36px) 근사
-    <main className="relative isolate flex min-h-full flex-col overflow-hidden bg-sky-gradient px-5 pb-10 pt-9">
+    <main className="relative isolate flex min-h-full flex-col overflow-hidden bg-sky-gradient px-5 pb-6 pt-9">
       {/* 배경: 하늘 그라데이션(Figma 그대로) + 구름(BgCloud) */}
       <BgCloud />
 
       <Logo size="sm" />
 
-      {/* figma-loose: 제목 블록 top Figma 137px → 로고 아래 mt-8(32px) 근사, 제목↔본문 gap-3(12px) Figma 일치 */}
+      {/* figma-loose: 제목 블록 top Figma 136px(디자이너 교정) → 로고 아래 mt-8(32px) 근사, 제목↔본문 gap-3(12px) Figma 일치 */}
       <div className="mt-8 flex flex-col gap-3">
         {/* Figma: head-point1/24 = display1(Y Spotlight) 24px */}
         <h1 className="text-head1-24 font-display1 text-gray-900">
@@ -114,17 +116,12 @@ export function ShareView({ nickname, surveyCode }: ShareViewProps) {
         </p>
       </div>
 
-      {/* 중앙 일러스트 = 디자이너 프레임 대기. Figma도 placeholder(350×305 흰 박스)로 자리만 잡아둠. */}
-      <div className="mt-7 flex aspect-[350/305] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
-        <span className="text-body-18-semibold text-gray-200">
-          일러스트 이미지 삽입 예정
-        </span>
-        <span className="text-body-18-semibold text-gray-200">
-          *대략적인 위치만 참고해 주세요
-        </span>
+      {/* 공유 안내 카드 캐러셀 (Figma F04 카드1~3 자동 슬라이드). 제목블록↔카드 gap 44px → mt-11. */}
+      <div className="mt-11">
+        <ShareCards />
       </div>
 
-      {/* 공유 CTA — figma-loose: Figma CTA 영역 pb 40px·gap 8px → main pb-10(40px) Figma 일치, gap-2(8px) Figma 일치 */}
+      {/* 공유 CTA — figma-loose: Figma CTA 영역 pb·gap 8px → gap-2(8px) Figma 일치 */}
       <div className="relative mt-auto flex flex-col gap-2 pt-7">
         {/* 토스트 — Figma F04(627:9624): CTA 위 중앙, 버튼과 8px 간격(mb-2) */}
         {toast && (

@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { useStartSubmissionAPI, useSubmitAnswersAPI } from "@/apis/survey/mutations";
 import { isApiError } from "@/apis/error";
 import type { SurveyQuestion, SubmissionStartedResponse } from "@/apis/survey/types";
+import { CenteredScreen } from "@/components/layout/centered-screen";
 import { SurveyRunner } from "@/components/survey/survey-runner";
-import { BgCloud } from "@/components/ui/bg-cloud";
 import { Cta } from "@/components/ui/cta";
 import { Logo } from "@/components/ui/logo";
 
@@ -66,32 +66,42 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
   // ── intro 화면 ────────────────────────────────────────────────────────────
   if (step === "intro") {
     return (
-      // figma-loose: 로고 top Figma 106px(프레임, status bar 44px 포함) → pt-16(64px) 근사
-      <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-8 pt-16 text-center">
-        <BgCloud />
-        <Logo />
-        {/* figma-loose: 타이틀 top Figma 184px(21.8%) → 로고 아래 mt-8 근사 */}
-        <h1 className="mt-8 text-head1-26 font-display1 text-gray-900">
-          <span className="text-blue-500">{nickname}</span>님은
-          <br />
-          어떤 사람인가요?
-        </h1>
-        {/* 카운트다운 GIF = 디자이너 프레임 대기. Figma도 흰 박스(350×332)로 자리만. */}
-        <div className="mt-7 flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
-          <span className="text-body-18-semibold text-gray-200">[GIF]</span>
-          <span className="text-body-18-semibold text-gray-200">
-            3, 2, 1 카운터하는 캐릭터 삽입 예정
-          </span>
-          <span className="text-body-18-semibold text-gray-200">
-            *대략적인 위치만 참고해 주세요
-          </span>
+      <CenteredScreen
+        // figma-loose: F06 진입 하단 안내문 = Figma 블록 414:13468 pb-32. 기본 pb-6(24) → pb-8(32) override.
+        className="pb-8"
+        footer={
+          // Figma: body/16-medium gray-700, 하단 고정
+          <p className="text-body-16-medium text-gray-700">
+            친구들의 답변이 모이면,
+            <br />
+            {nickname}님의 네컷이 완성돼요
+          </p>
+        }
+      >
+        {/* 콘텐츠 오토레이아웃 (Figma node 589:3870 + img) — 로고+타이틀 그룹 ↔ GIF box gap 56(gap-14) */}
+        <div className="flex w-full flex-col items-center gap-14">
+          {/* 로고 ↔ 타이틀 gap 48(gap-12) */}
+          <div className="flex flex-col items-center gap-12">
+            <Logo />
+            <h1 className="text-head1-26 font-display1 text-gray-900">
+              <span className="text-blue-500">{nickname}</span>님은
+              <br />
+              어떤 사람인가요?
+            </h1>
+          </div>
+
+          {/* 카운트다운 GIF = 디자이너 프레임 대기. Figma도 흰 박스(350×332)로 자리만. */}
+          <div className="flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
+            <span className="text-body-18-semibold text-gray-200">[GIF]</span>
+            <span className="text-body-18-semibold text-gray-200">
+              3, 2, 1 카운터하는 캐릭터 삽입 예정
+            </span>
+            <span className="text-body-18-semibold text-gray-200">
+              *대략적인 위치만 참고해 주세요
+            </span>
+          </div>
         </div>
-        <p className="mt-auto pt-8 text-body-16-medium text-gray-700">
-          친구들의 답변이 모이면,
-          <br />
-          {nickname}님의 네컷이 완성돼요
-        </p>
-      </main>
+      </CenteredScreen>
     );
   }
 
@@ -165,41 +175,53 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
     );
   }
 
-  // ── 완료 화면 — Figma F06 완료 화면 노드 414:13540 정합. ──────────────────
-  // figma-loose: 로고 top Figma 104px(프레임, status bar 44px 포함) → pt-16(64px) 근사.
+  // done — Figma F06 완료 화면 노드 414:13540 정합.
   return (
-    <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-6 pt-16 text-center">
-      <BgCloud />
-      <Logo />
-      {/* figma-loose: 타이틀 top Figma 176px(로고 bottom 132 → 타이틀 top 176 = gap 44px) → mt-10(40px) 근사. */}
-      <h1 className="mt-10 text-head1-24 font-display1 text-gray-900">
-        <span className="text-blue-500">{nickname}</span>님에게
-        <br />
-        답변을 전했어요!
-      </h1>
-      <p className="mt-3 text-body-16-medium text-gray-300">
-        방금 답변이 {nickname}님의
-        <br />
-        네컷을 완성하는 데 보탬이 됐어요
-      </p>
-      {/* 일러스트 placeholder — Figma top 344, w350 h332, 흰 박스. */}
-      <div className="mt-7 flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
-        <span className="text-body-18-semibold text-gray-200">
-          일러스트 이미지 삽입 예정
-        </span>
-        <span className="text-body-18-semibold text-gray-200">
-          *대략적인 위치만 참고해 주세요
-        </span>
+    <CenteredScreen
+      footer={
+        // 하단 블록 — 안내문 ↔ CTA gap 12(gap-3)
+        <div className="flex w-full flex-col gap-3">
+          {/* Figma: body/14-medium gray-800 중앙 */}
+          <p className="text-body-14-medium text-gray-800">
+            남이 본 내 모습이 궁금하다면?
+          </p>
+          {/* Figma 주석: "클릭 시 F01_온보딩 이동" → href="/" (랜딩, product-spec #5 바이럴 루프) */}
+          <Cta asChild>
+            <Link href="/">나도 만들기</Link>
+          </Cta>
+        </div>
+      }
+    >
+      {/* 콘텐츠 오토레이아웃 (Figma node 589:3869 + img) — 로고+타이틀 그룹 ↔ 일러스트 gap 40(gap-10) */}
+      <div className="flex w-full flex-col items-center gap-10">
+        {/* 로고 ↔ 타이틀블록 gap 40(gap-10) */}
+        <div className="flex flex-col items-center gap-10">
+          <Logo />
+          {/* 타이틀 블록 — 제목 ↔ 서브 gap 12(gap-3) */}
+          <div className="flex flex-col items-center gap-3">
+            <h1 className="text-head1-24 font-display1 text-gray-900">
+              <span className="text-blue-500">{nickname}</span>님에게
+              <br />
+              답변을 전했어요!
+            </h1>
+            <p className="text-body-16-medium text-gray-300">
+              방금 답변이 {nickname}님의
+              <br />
+              네컷을 완성하는 데 보탬이 됐어요
+            </p>
+          </div>
+        </div>
+
+        {/* 일러스트 placeholder — Figma top 344, w350 h332, 흰 박스. 실제 일러스트는 디자이너 프레임 대기. */}
+        <div className="flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
+          <span className="text-body-18-semibold text-gray-200">
+            일러스트 이미지 삽입 예정
+          </span>
+          <span className="text-body-18-semibold text-gray-200">
+            *대략적인 위치만 참고해 주세요
+          </span>
+        </div>
       </div>
-      {/* 하단 고정 블록 */}
-      <div className="mt-auto flex w-full flex-col gap-3 pt-8">
-        <p className="text-body-14-medium text-gray-800">
-          남이 본 내 모습이 궁금하다면?
-        </p>
-        <Cta asChild>
-          <Link href="/">나도 만들기</Link>
-        </Cta>
-      </div>
-    </main>
+    </CenteredScreen>
   );
 }

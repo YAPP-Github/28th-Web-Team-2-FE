@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 
 import { isApiError } from "@/apis/error";
 import { useCreateSurveyAPI } from "@/apis/survey/mutations";
@@ -13,8 +13,9 @@ import { TextfieldSet } from "@/components/ui/textfield-set";
 
 // 닉네임 설정 (product-spec #2 · Figma F02 node 414:13283) — GUI 1차 전경 정합.
 // 확인 클릭 시 survey 생성 API 호출 → surveyCode를 로컬에 저장 → 자기 설문으로.
-// TODO(✍️): 닉네임 길이·금칙어 규칙 (계정 없어 중복검사 불필요).
-const MAX_LEN = 10;
+// TODO(✍️): 닉네임 금칙어 규칙 (계정 없어 중복검사 불필요).
+// 길이 제한 = 8자 (디자이너 확정): 8자 초과 시 확인 버튼 비활성화.
+const MAX_LEN = 8;
 
 export default function NicknamePage() {
   const router = useRouter();
@@ -61,12 +62,23 @@ export default function NicknamePage() {
     ? `${MAX_LEN}자 이하로 입력해주세요`
     : (serverError ?? undefined);
 
+  // 여백(입력칸·버튼 외) 탭 시 키보드 내리기 — 입력/버튼 클릭은 각자 핸들러로 흘려보냄.
+  const handleBackgroundClick = (e: MouseEvent<HTMLElement>) => {
+    if ((e.target as HTMLElement).closest("input, button")) return;
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
   // figma-loose: 로고 top Figma 80px(프레임, status bar 44px 포함) → pt-9(36px) 근사
   return (
-    <main className="flex min-h-full flex-col px-5 pb-8 pt-9">
+    <main
+      className="flex min-h-full flex-col px-5 pb-6 pt-9"
+      onClick={handleBackgroundClick}
+    >
       <Logo size="sm" />
 
-      {/* figma-loose: 제목 블록 top Figma 138px → 로고 아래 mt-8(32px) 근사(Figma 간격 ≈34.5px), 제목↔본문 gap-3(12px) Figma 일치 */}
+      {/* figma-loose: 제목 블록 top Figma 136px(디자이너 교정) → 로고 아래 mt-8(32px) 근사, 제목↔본문 gap-3(12px) Figma 일치 */}
       <div className="mt-8 flex flex-col gap-3">
         {/* Figma: head-point1/24 = display1(Y Spotlight) 24px. (기존 display2에서 교정) */}
         <h1 className="text-head1-24 font-display1 text-gray-900">
@@ -80,8 +92,8 @@ export default function NicknamePage() {
         </p>
       </div>
 
-      {/* figma-loose: 입력칸 top Figma 269px → 제목 블록 아래 mt-8(32px) 근사 */}
-      <div className="mt-8">
+      {/* figma-loose: 입력칸 top Figma 268px(디자이너 교정) → 제목 블록 아래 mt-9(36px) 근사 */}
+      <div className="mt-9">
         <TextfieldSet
           isError={hasError}
           description={errorMessage}
@@ -103,7 +115,7 @@ export default function NicknamePage() {
         />
       </div>
 
-      {/* figma-loose: CTA 영역 Figma pb 34px → main pb-8(32px, -2px) 근사 */}
+      {/* Figma: CTA 하단 여백 24px(디자이너 교정) → main pb-6(24px) 일치 */}
       {/* 키보드 따라 버튼 올라오게 (F02 요청): visualViewport로 잰 키보드 높이만큼 위로 */}
       <div
         className="mt-auto transition-transform duration-200 ease-out"

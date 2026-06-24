@@ -14,11 +14,11 @@ import { cn } from "@/lib/utils"
  *
  * size: sm 24px(=Figma 84×23.5 인스턴스) · md 28px(=Figma 100×28 인스턴스). 비율 100:28 고정.
  */
-const logoVariants = cva("inline-block w-auto text-blue-500 select-none", {
+const logoVariants = cva("shrink-0 text-blue-500 select-none", {
   variants: {
     size: {
-      sm: "h-6",
-      md: "h-7",
+      sm: "h-6 w-logo-sm",
+      md: "h-7 w-logo-md",
     },
   },
   defaultVariants: {

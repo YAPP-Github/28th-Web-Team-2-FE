@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { useGetSurveyResultAPI } from "@/apis/survey/queries";
-import { BgCloud } from "@/components/ui/bg-cloud";
+import { CenteredScreen } from "@/components/layout/centered-screen";
 import { Cta } from "@/components/ui/cta";
 import { CtaSmall } from "@/components/ui/cta-small";
 import { DownloadIcon } from "@/components/ui/icons/download";
@@ -111,36 +111,42 @@ export function ResultView({ surveyCode, nickname, respondentCount }: ResultView
     showToast(result === "shared" ? "카카오톡 공유를 열었어요" : "링크를 복사했어요");
   };
 
-  // ── 게이트 화면 (!entered) — Figma 노드 414:13565 ──────────────────────────
+  // ── 게이트 화면 (!entered) — Figma 노드 414:13565 / 589:4060 ────────────────
   if (!entered) {
     return (
-      // figma-loose: 로고 top Figma 104px(프레임, status bar 44px 포함) → pt-16(64px) 근사.
-      <main className="relative isolate flex min-h-full flex-col items-center overflow-hidden bg-sky-gradient px-5 pb-6 pt-16 text-center">
-        <BgCloud />
-        <Logo />
-        {/* figma-loose: 타이틀 top Figma 176px(로고 bottom 132 → 타이틀 top 176 = gap 44px) → mt-10(40px) 근사. */}
-        <h1 className="mt-10 text-head1-24 font-display1 text-gray-900">
-          <span className="text-blue-500">{nickname}</span>님의 네컷이
-          <br />
-          완성됐어요
-        </h1>
-        <p className="mt-3 text-body-16-medium text-gray-300">
-          친구 {respondentCount}명의 응답을 보러 갈까요?
-        </p>
-        {/* 일러스트 placeholder — 실제 일러스트는 디자이너 프레임 대기.
-            figma-loose: aspect-[350/332] = Figma 흰 박스 350×332 비율. */}
-        <div className="mt-7 flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
-          <span className="text-body-18-semibold text-gray-200">
-            일러스트 이미지 삽입 예정
-          </span>
-          <span className="text-body-18-semibold text-gray-200">
-            *대략적인 위치만 참고해 주세요
-          </span>
+      <CenteredScreen
+        footer={<Cta onClick={() => setEntered(true)}>내 네컷 결과 보기</Cta>}
+      >
+        {/* 콘텐츠 오토레이아웃 (Figma node 589:4060) — 로고+타이틀 그룹 ↔ 일러스트 gap 56(gap-14) */}
+        <div className="flex w-full flex-col items-center gap-14">
+          {/* 로고 ↔ 타이틀블록 gap 56(gap-14, 타이틀 top 176→188 이동 디자이너 교정) */}
+          <div className="flex flex-col items-center gap-14">
+            <Logo />
+            {/* 타이틀 블록 — 제목 ↔ 서브 gap 12(gap-3) */}
+            <div className="flex flex-col items-center gap-3">
+              <h1 className="text-head1-24 font-display1 text-gray-900">
+                <span className="text-blue-500">{nickname}</span>님의 네컷이
+                <br />
+                완성됐어요
+              </h1>
+              <p className="text-body-16-medium text-gray-300">
+                친구 {respondentCount}명의 응답을 보러 갈까요?
+              </p>
+            </div>
+          </div>
+
+          {/* 일러스트 placeholder — Figma img_character_hamster_insight_noword(270×334) 대기.
+              figma-loose: aspect-[350/332] 흰 박스로 자리만. */}
+          <div className="flex aspect-[350/332] w-full flex-col items-center justify-center gap-1 rounded-2xl bg-white text-center">
+            <span className="text-body-18-semibold text-gray-200">
+              일러스트 이미지 삽입 예정
+            </span>
+            <span className="text-body-18-semibold text-gray-200">
+              *대략적인 위치만 참고해 주세요
+            </span>
+          </div>
         </div>
-        <div className="mt-auto flex w-full flex-col gap-3 pt-8">
-          <Cta onClick={() => setEntered(true)}>내 네컷 결과 보기</Cta>
-        </div>
-      </main>
+      </CenteredScreen>
     );
   }
 
@@ -217,16 +223,16 @@ export function ResultView({ surveyCode, nickname, respondentCount }: ResultView
       {/* ── 디스클레이머 ────────────────────────────────────────────────── */}
       <div className="mx-5 mt-4 rounded-lg border border-gray-100 bg-white px-3 py-2 text-center">
         <p className="text-body-14-medium text-gray-300">
-          친구들의 답변을 바탕으로 AI가 그린 이미지로,
+          친구들의 답변을 바탕으로 AI가 그린 이미지예요.
           <br />
           실제와 다를 수 있어요.
         </p>
       </div>
 
-      {/* ── 하단 고정 공유바 ─────────────────────────────────────────────── */}
-      {/* figma-loose: drop-shadow Figma 0px -2px 6px rgba(0,0,0,0.03) → arbitrary drop-shadow(토큰 부재). */}
-      <div className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-[390px] gap-1 border-t border-gray-50 bg-white px-5 pb-6 pt-3 drop-shadow-[0px_-2px_6px_rgba(0,0,0,0.03)] md:absolute">
-        <CtaSmall variant="stroke_icn" onClick={handleCopy} className="flex-1">
+      {/* ── 하단 고정 공유바 "btm_CTA_area" (Figma bottom0 fixed) ────────── */}
+      <div className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-[390px] gap-1 border-t border-gray-50 bg-white px-5 pb-6 pt-3 shadow-bar md:absolute">
+        {/* figma-loose: Figma 아이콘은 copy(Edit/Copy)인데 stroke_icn은 link 아이콘 내장. 아이콘은 디자이너 SVG 확인 후 copy_icn 변형으로 교체 예정(2단계). */}
+        <CtaSmall variant="stroke_icn" onClick={handleCopy} className="flex-1 border-gray-100">
           링크 복사하기
         </CtaSmall>
         <CtaSmall variant="fill" onClick={handleKakao} className="flex-1">

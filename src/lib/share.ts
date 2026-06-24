@@ -48,6 +48,25 @@ async function copyLink(link: string): Promise<boolean> {
   }
 }
 
+// 인스타 스토리는 PNG 파일을 공유하면 검정화면으로 깨지는 경우가 있어(특히 삼성 인터넷)
+// canvas로 image/jpeg 로 재인코딩해서 넘긴다. (react-native-share#1137 동일 원인)
+async function toJpegFile(blob: Blob, fileName: string): Promise<File> {
+  const bitmap = await createImageBitmap(blob);
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas 2d context를 얻지 못함");
+  ctx.drawImage(bitmap, 0, 0);
+  bitmap.close?.();
+
+  const jpeg = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", 0.92),
+  );
+  if (!jpeg) throw new Error("JPEG 변환 실패");
+  return new File([jpeg], fileName, { type: "image/jpeg" });
+}
+
 /** 인스타 스토리: 스토리 공유 이미지(imageUrl, 보통 story-share.png)를 공유 시트로 + 링크는 클립보드 복사 */
 export async function shareInstagramStory({
   link,
@@ -62,15 +81,15 @@ export async function shareInstagramStory({
   try {
     const res = await fetch(imageUrl);
     const blob = await res.blob();
-    const file = new File([blob], "looky.png", {
-      type: blob.type || "image/png",
-    });
+    const file = await toJpegFile(blob, "looky.jpg");
+    // files + text 동시 전달은 일부 안드로이드/iOS 앱이 미디어를 무시(검정 캔버스)하므로
+    // 링크는 위에서 이미 복사했고 여기선 이미지 파일만 공유한다.
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], text: link });
+      await navigator.share({ files: [file] });
       return "shared";
     }
   } catch {
-    // 공유 취소(AbortError)·미지원 등 → 아래 복사 결과로 폴백
+    // 변환 실패·공유 취소(AbortError)·미지원 등 → 아래 복사 결과로 폴백
   }
 
   return copied ? "copied" : "unsupported";
