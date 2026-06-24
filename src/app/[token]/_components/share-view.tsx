@@ -20,14 +20,15 @@ import {
 // TODO(✍️): 24h 만료·전환 책임 위치(클라/서버).
 interface ShareViewProps {
   nickname: string;
-  token: string;
-  // ⚠ figma-loose(충돌): respondentCount·hoursLeft 는 product-spec #4의 '수집 게이지·카운트다운'용이나
-  //   Figma GUI 1차 F04엔 해당 UI가 없음 → 현재 미렌더. props는 게이지 복원 합의 대비 유지. (task #8 리포트)
+  surveyCode: string;
+  // product-spec #4 수집 게이지·카운트다운용. Figma GUI 1차 F04엔 해당 UI가 없음 → 미렌더.
+  // props만 받고 현재 미사용. 게이지 복원 합의 시 활성화.
   respondentCount: number;
-  hoursLeft: number;
+  requiredCount: number;
+  remainingSeconds: number;
 }
 
-export function ShareView({ nickname, token }: ShareViewProps) {
+export function ShareView({ nickname, surveyCode }: ShareViewProps) {
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<number | null>(null);
 
@@ -38,7 +39,7 @@ export function ShareView({ nickname, token }: ShareViewProps) {
   }, []);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const link = `${origin}/${token}`;
+  const link = `${origin}/${surveyCode}`;
   // 인스타 스토리: 세로형(1080×1920) / 카카오 피드: 가로형 OG(1200×630)
   const storyImageUrl = `${origin}/assets/story-share.png`;
   const ogImageUrl = `${origin}/assets/og-image.png`;

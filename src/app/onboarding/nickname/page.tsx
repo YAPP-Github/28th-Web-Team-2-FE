@@ -3,29 +3,61 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useCreateSurveyAPI } from "@/apis/survey/mutations";
+import { isApiError } from "@/apis/error";
+import { saveSession } from "@/lib/local-session";
 import { Cta } from "@/components/ui/cta";
 import { Logo } from "@/components/ui/logo";
 import { TextfieldSet } from "@/components/ui/textfield-set";
 
 // 닉네임 설정 (product-spec #2 · Figma F02 node 414:13283) — GUI 1차 전경 정합.
-// 로컬에 임시 보관 후 자기 설문으로. 토큰 발급은 자기 설문 완료 시점(#3).
-// 룰/Figma에서 느슨하게 처리한 지점은 `figma-loose:` 주석으로 표기(디자이너 합의용).
+// 확인 클릭 시 survey 생성 API 호출 → surveyCode를 로컬에 저장 → 자기 설문으로.
 // TODO(✍️): 닉네임 길이·금칙어 규칙 (계정 없어 중복검사 불필요).
 const MAX_LEN = 12;
 
 export default function NicknamePage() {
   const router = useRouter();
   const [nickname, setNickname] = useState("");
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const { mutate, isPending } = useCreateSurveyAPI();
 
   const trimmed = nickname.trim();
   const tooLong = trimmed.length > MAX_LEN;
-  const canSubmit = trimmed.length > 0 && !tooLong;
+  const canSubmit = trimmed.length > 0 && !tooLong && !isPending;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    // 자기 설문으로 넘기며 닉네임 전달 (완료 시 토큰과 함께 로컬 저장)
-    router.push(`/onboarding/survey?nickname=${encodeURIComponent(trimmed)}`);
+    setServerError(null);
+
+    mutate(
+      { userNickname: trimmed },
+      {
+        onSuccess: (payload) => {
+          saveSession({
+            nickname: payload.userNickname,
+            surveyCode: payload.surveyCode,
+            createdAt: Date.now(),
+          });
+          router.push("/onboarding/survey");
+        },
+        onError: (error) => {
+          if (isApiError(error)) {
+            const msg =
+              error.fieldErrors?.[0]?.reason ?? error.message;
+            setServerError(msg);
+          } else {
+            setServerError("오류가 발생했어요. 다시 시도해주세요.");
+          }
+        },
+      },
+    );
   };
+
+  const hasError = tooLong || !!serverError;
+  const errorMessage = tooLong
+    ? `${MAX_LEN}자 이하로 입력해주세요`
+    : (serverError ?? undefined);
 
   // figma-loose: 로고 top Figma 80px(프레임, status bar 44px 포함) → pt-9(36px) 근사
   return (
@@ -49,15 +81,19 @@ export default function NicknamePage() {
       {/* figma-loose: 입력칸 top Figma 269px → 제목 블록 아래 mt-8(32px) 근사 */}
       <div className="mt-8">
         <TextfieldSet
-          isError={tooLong}
-          description={tooLong ? `${MAX_LEN}자 이하로 입력해주세요` : undefined}
+          isError={hasError}
+          description={errorMessage}
           inputProps={{
             value: nickname,
-            onChange: (e) => setNickname(e.target.value),
+            onChange: (e) => {
+              setNickname(e.target.value);
+              if (serverError) setServerError(null);
+            },
             onKeyDown: (e) => e.key === "Enter" && handleSubmit(),
             placeholder: "이름 또는 별명",
             "aria-label": "닉네임",
             maxLength: MAX_LEN + 4,
+            disabled: isPending,
           }}
         />
       </div>
@@ -65,7 +101,7 @@ export default function NicknamePage() {
       {/* figma-loose: CTA 영역 Figma pb 34px → main pb-8(32px, -2px) 근사 */}
       <div className="mt-auto">
         <Cta onClick={handleSubmit} disabled={!canSubmit}>
-          확인
+          {isPending ? "만드는 중..." : "확인"}
         </Cta>
       </div>
     </main>
