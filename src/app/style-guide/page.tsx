@@ -66,6 +66,7 @@ const TYPE_GROUPS = [
       { token: "body/18-semibold", cls: "text-body-18-semibold" },
       { token: "body/18-medium", cls: "text-body-18-medium" },
       { token: "body/18-regular", cls: "text-body-18-regular" },
+      { token: "body/16-bold", cls: "text-body-16-bold" },
       { token: "body/16-semibold", cls: "text-body-16-semibold" },
       { token: "body/16-medium", cls: "text-body-16-medium" },
       { token: "body/16-regular", cls: "text-body-16-regular" },

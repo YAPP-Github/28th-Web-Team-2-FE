@@ -199,6 +199,10 @@
   --text-body-18-regular--line-height: 1.55;
   --text-body-18-regular--letter-spacing: -0.03em;
   --text-body-18-regular--font-weight: 400;
+  --text-body-16-bold: 1rem;
+  --text-body-16-bold--line-height: 1.55;
+  --text-body-16-bold--letter-spacing: -0.03em;
+  --text-body-16-bold--font-weight: 700;
   --text-body-16-semibold: 1rem;
   --text-body-16-semibold--line-height: 1.5;
   --text-body-16-semibold--letter-spacing: -0.03em;

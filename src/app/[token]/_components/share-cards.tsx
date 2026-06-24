@@ -280,10 +280,8 @@ function CardFrame({
           <span className="flex size-5 items-center justify-center rounded-[4px] bg-blue-200 font-display2 text-head2-14 text-white">
             {card.n}
           </span>
-          {/* pill = 흰 배경 + blue/500 텍스트.
-              DSGN: Figma는 Pretendard Bold 16px(lh 1.55)인데 토큰 스케일에 16px-bold 없음(semibold까지)
-              → 기존 패턴대로 body-16-medium + font-bold로 근사. 16-bold 토큰 신설 여부 디자이너 확인 요망. */}
-          <p className="rounded-md bg-white px-3 py-1 text-center font-bold text-body-16-medium text-blue-500">
+          {/* pill = 흰 배경 + blue/500 텍스트. Figma body/16-bold(Pretendard Bold 16, lh 1.55) 토큰 사용. */}
+          <p className="rounded-md bg-white px-3 py-1 text-center text-body-16-bold text-blue-500">
             {card.text}
           </p>
         </div>
