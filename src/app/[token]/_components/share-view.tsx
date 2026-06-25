@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { BgCloud } from "@/components/ui/bg-cloud";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Cta } from "@/components/ui/cta";
 import { CtaSmall } from "@/components/ui/cta-small";
 import { DownloadIcon } from "@/components/ui/icons/download";
@@ -28,11 +29,40 @@ export function ShareView({ surveyCode }: ShareViewProps) {
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<number | null>(null);
 
+  // ── 이탈 가드 ────────────────────────────────────────────────────────────────
+  // 주인공이 back을 누르면 닉네임(온보딩)으로 돌아가 버린다 → 수집 중인데 실수 이탈 방지.
+  // beforeunload는 SPA back을 못 잡고 커스텀 문구도 불가 → popstate 가로채기 + 확인 모달.
+  // 마운트 시 가드 entry 1개 push → back으로 가드가 pop되면 다시 push(머무름)하고 모달 노출.
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const guardPushedRef = useRef(false);
+  const leavingRef = useRef(false);
+
   useEffect(() => {
     return () => {
       if (timer.current !== null) window.clearTimeout(timer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!guardPushedRef.current) {
+      window.history.pushState({ lookyShareGuard: true }, "");
+      guardPushedRef.current = true;
+    }
+    const onPop = () => {
+      if (leavingRef.current) return;
+      window.history.pushState({ lookyShareGuard: true }, ""); // 재장전 → 머무름
+      setLeaveConfirmOpen(true);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // "나가기": 가드 + 공유 entry를 건너뛰어 설문 진입 직전(닉네임)으로
+  const handleLeave = () => {
+    leavingRef.current = true;
+    setLeaveConfirmOpen(false);
+    window.history.go(-2);
+  };
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const link = `${origin}/${surveyCode}`;
@@ -76,6 +106,17 @@ export function ShareView({ surveyCode }: ShareViewProps) {
     <main className="relative isolate flex min-h-full flex-col overflow-hidden bg-sky-gradient px-5 pb-6 pt-9">
       {/* 배경: 하늘 그라데이션(Figma 그대로) + 구름(BgCloud) */}
       <BgCloud />
+
+      {/* 이탈 확인 모달 — back 가로채기로 노출 */}
+      <ConfirmDialog
+        open={leaveConfirmOpen}
+        onOpenChange={setLeaveConfirmOpen}
+        title="친구들 답변을 모으는 중이에요"
+        description="지금 나가도 링크는 그대로 살아있어요. 정말 나갈까요?"
+        cancelLabel="머무르기"
+        confirmLabel="나가기"
+        onConfirm={handleLeave}
+      />
 
       {/* Figma 830:9448: 로고 가운데 정렬 */}
       <div className="flex justify-center">
