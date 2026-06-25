@@ -1,9 +1,19 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SurveyQuestion } from "@/apis/survey/types";
 
 import { SurveyRunner } from "./survey-runner";
+
+// 보기 선택 → 다음 문항 전환은 500ms 디바운스(선택 피드백) 뒤에 일어난다.
+// fake timer로 그 시간을 넘긴다.
+const ADVANCE_MS = 500;
+const choose = (text: string) => {
+  fireEvent.click(screen.getByText(text));
+  act(() => {
+    vi.advanceTimersByTime(ADVANCE_MS);
+  });
+};
 
 // API 응답 모양의 로컬 fixture
 const QS: SurveyQuestion[] = [
@@ -34,6 +44,14 @@ const QS: SurveyQuestion[] = [
 ];
 
 describe("SurveyRunner", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
+
   // 진행 표시는 "1"(blue) + " / 2"(gray) 두 span으로 쪼개져 있어 textContent로 매칭
   const progress = (text: string) =>
     screen.getByText(
@@ -48,7 +66,7 @@ describe("SurveyRunner", () => {
 
   it("보기를 고르면 다음 문항으로 넘어간다", () => {
     render(<SurveyRunner questions={QS} onComplete={vi.fn()} />);
-    fireEvent.click(screen.getByText("a1"));
+    choose("a1");
     expect(screen.getByText("질문 B")).toBeInTheDocument();
     expect(progress("2 / 2")).toBeInTheDocument();
   });
@@ -56,8 +74,8 @@ describe("SurveyRunner", () => {
   it("마지막 문항 완료 시 onComplete에 {questionId, answerOptionId}[] 를 넘긴다", () => {
     const onComplete = vi.fn();
     render(<SurveyRunner questions={QS} onComplete={onComplete} />);
-    fireEvent.click(screen.getByText("a1")); // questionId=1, answerOptionId=11
-    fireEvent.click(screen.getByText("b3")); // questionId=2, answerOptionId=23
+    choose("a1"); // questionId=1, answerOptionId=11
+    choose("b3"); // questionId=2, answerOptionId=23
     expect(onComplete).toHaveBeenCalledWith(
       expect.arrayContaining([
         { questionId: 1, answerOptionId: 11 },

@@ -9,7 +9,7 @@ import { isApiError } from "@/apis/error";
 import type { AnswerEntry, SubmissionStartedResponse } from "@/apis/survey/types";
 import { SurveyRunner } from "@/components/survey/survey-runner";
 import { readSession } from "@/lib/local-session";
-import { clearSelfSurveyCache, readSelfSurveyCache, saveSelfSurveyCache } from "@/lib/self-survey-cache";
+import { clearSelfSurveyCache, isSelfSurveyDone, markSelfSurveyDone, readSelfSurveyCache, saveSelfSurveyCache } from "@/lib/self-survey-cache";
 import { Cta } from "@/components/ui/cta";
 
 // 자기 설문 (product-spec #3) — 필수 선행. 조하리 "나 vs 친구"의 본인 쪽 데이터.
@@ -65,6 +65,13 @@ export default function SelfSurveyPage() {
 
     // 클라이언트 마운트 후 localStorage 캐시 확인 — 있으면 API 호출 생략
     const session = readSession();
+
+    // 이미 제출 완료한 설문이면 결과 페이지로 (결과→back으로 설문 재진입 시 재제출/409 방지)
+    if (session?.surveyCode && isSelfSurveyDone(session.surveyCode)) {
+      router.replace(`/${session.surveyCode}`);
+      return;
+    }
+
     const cached = session?.surveyCode ? readSelfSurveyCache(session.surveyCode) : null;
     if (cached) {
       setCachedData(cached);
@@ -72,7 +79,7 @@ export default function SelfSurveyPage() {
     }
 
     runStart();
-  }, [runStart]);
+  }, [runStart, router]);
 
   // API 응답이 오면 캐시에 저장 (재시도·복구 데이터 포함)
   useEffect(() => {
@@ -146,6 +153,7 @@ export default function SelfSurveyPage() {
           clearSelfSurveyCache();
           const code = session?.surveyCode;
           if (code) {
+            markSelfSurveyDone(code); // 결과→back으로 설문 재진입 차단
             router.replace(`/${code}`);
           } else {
             router.replace("/");
