@@ -44,12 +44,9 @@ export default function TokenPage() {
   });
 
   // ── 1. 로딩 ──────────────────────────────────────────────────────────────
+  // 디자인상 로딩 화면 없음(스켈레톤은 결과 화면 전용) → 조회 중엔 아무것도 렌더 안 함
   if (isLoading) {
-    return (
-      <div className="flex min-h-full items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-gray-100 border-t-blue-500" />
-      </div>
-    );
+    return null;
   }
 
   // ── 2. 에러 ──────────────────────────────────────────────────────────────

@@ -85,13 +85,9 @@ export default function SelfSurveyPage() {
   const effectiveData = cachedData ?? recoveredData ?? submissionData;
 
   // ── 로딩 — 문항 불러오는 중 ────────────────────────────────────────────────
+  // 디자인상 로딩 화면 없음 → 불러오는 동안 아무것도 렌더 안 함
   if (!effectiveData && !isStartError && (isStarting || !submissionData)) {
-    return (
-      <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="size-10 animate-spin rounded-full border-2 border-gray-100 border-t-blue-500" />
-        <p className="text-body-16-medium text-gray-900">문항을 불러오고 있어요</p>
-      </div>
-    );
+    return null;
   }
 
   // ── 에러 — 문항 불러오기 실패 ──────────────────────────────────────────────
@@ -117,16 +113,9 @@ export default function SelfSurveyPage() {
   }
 
   // ── 제출 로딩 ────────────────────────────────────────────────────────────────
+  // 디자인상 로딩 화면 없음 → 제출 중엔 아무것도 렌더 안 함 (성공 시 결과로 이동)
   if (isSubmitting || isSubmittingDone) {
-    return (
-      <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="size-10 animate-spin rounded-full border-2 border-gray-100 border-t-blue-500" />
-        <p className="text-body-16-medium text-gray-900">
-          공유 링크를 만들고 있어요
-        </p>
-        <p className="text-body-14-regular text-gray-300">잠시만 기다려주세요</p>
-      </div>
-    );
+    return null;
   }
 
   // ── 에러 — 제출 실패 ────────────────────────────────────────────────────────

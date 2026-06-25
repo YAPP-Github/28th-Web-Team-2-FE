@@ -116,13 +116,9 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
   }
 
   // ── 로딩 — 문항 불러오는 중 ──────────────────────────────────────────────
+  // 디자인상 로딩 화면 없음 → 불러오는 동안 아무것도 렌더 안 함
   if (step === "loading") {
-    return (
-      <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="size-10 animate-spin rounded-full border-2 border-gray-100 border-t-blue-500" />
-        <p className="text-body-16-medium text-gray-900">문항을 불러오고 있어요</p>
-      </div>
-    );
+    return null;
   }
 
   // ── 에러 ─────────────────────────────────────────────────────────────────
@@ -145,13 +141,9 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
   }
 
   // ── 제출 로딩 ─────────────────────────────────────────────────────────────
+  // 디자인상 로딩 화면 없음 → 제출 중엔 아무것도 렌더 안 함 (성공 시 done으로 전환)
   if (step === "submitting") {
-    return (
-      <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="size-10 animate-spin rounded-full border-2 border-gray-100 border-t-blue-500" />
-        <p className="text-body-16-medium text-gray-900">답변을 전달하고 있어요</p>
-      </div>
-    );
+    return null;
   }
 
   // ── 설문 화면 ─────────────────────────────────────────────────────────────

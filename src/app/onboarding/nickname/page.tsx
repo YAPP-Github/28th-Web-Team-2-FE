@@ -125,7 +125,7 @@ export default function NicknamePage() {
         }}
       >
         <Cta onClick={handleSubmit} disabled={!canSubmit}>
-          {isPending ? "만드는 중..." : "확인"}
+          확인
         </Cta>
       </div>
     </main>
