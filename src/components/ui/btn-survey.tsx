@@ -26,7 +26,7 @@ const btnSurveyVariants = cva(
     "inline-flex w-full shrink-0 items-center",
     "rounded-field",         // --radius-field: 0.75rem (12px) — 신설 토큰
     "h-16",                  // 64px
-    "font-sans text-body-16-medium",  // letter-spacing·line-height는 @theme --text-body-16-medium--* 자동 적용
+    "font-sans font-medium text-body-16-medium",  // letter-spacing·line-height는 @theme --text-body-16-medium--* 자동 적용
     "transition-colors select-none outline-none",
     "focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
