@@ -178,8 +178,8 @@ export function ResultView({
   const resultDate = formatResultDate(resultAvailableAt);
 
   return (
-    // figma-loose: 공유바 fixed 높이(pb-6+h-14+pt-3 ≈ 88px) → pb-28(112px)으로 여유 확보.
-    <main className="relative flex min-h-full flex-col bg-white pb-28">
+    // 공유바 fixed 높이(pt-3+h-14+pb-6 = 92px) + 팁 카드와 공유바 간 여백 108px → pb-[200px]
+    <main className="relative flex min-h-full flex-col bg-white pb-[200px]">
 
       {/* ── 헤더 (Figma top 44, h60) ─────────────────────────────────────── */}
       <div className="flex items-center justify-between px-5 pt-4">
