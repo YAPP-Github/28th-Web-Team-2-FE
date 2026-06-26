@@ -34,7 +34,7 @@ const textfieldVariants = cva(
     // placeholder
     "placeholder:text-gray-200",
     // focused
-    "focus-visible:outline-none focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-400/30",
+    "focus-visible:outline-none focus-visible:border-blue-400",
     // error (aria-invalid)
     "aria-invalid:border-red-300 aria-invalid:ring-2 aria-invalid:ring-red-300/20",
     "transition-colors",
