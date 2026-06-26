@@ -36,7 +36,7 @@ const textfieldVariants = cva(
     // focused
     "focus-visible:outline-none focus-visible:border-blue-400",
     // error (aria-invalid)
-    "aria-invalid:border-red-300 aria-invalid:ring-2 aria-invalid:ring-red-300/20",
+    "aria-invalid:border-red-300",
     "transition-colors",
     "disabled:pointer-events-none disabled:opacity-50",
   ].join(" ")
