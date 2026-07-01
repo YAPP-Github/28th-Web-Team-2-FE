@@ -38,20 +38,27 @@ export function CenteredScreen({
   return (
     <main
       className={cn(
-        "relative isolate flex min-h-full flex-col items-center px-5 pt-5 text-center",
-        footer ? "pb-0" : "pb-6",
+        "relative isolate flex h-full flex-col px-5 text-center",
         background === "gray" ? "bg-gray-gradient" : "bg-sky-gradient",
         className,
       )}
     >
       <BgCloud />
-      {/* 위 여백 가변 → 콘텐츠 세로 중앙 */}
-      <div className="flex-1" aria-hidden />
-      {children}
-      <div className="flex-1" aria-hidden />
-      {/* sticky — fixed 대신 스크롤 컨테이너 기준으로 붙어 iOS 브라우저 UI 변화에 튀지 않음 */}
+      {/* 콘텐츠 영역 — flex-1으로 남은 공간 차지, 내부 flex-1 스페이서로 세로 중앙.
+          소형 기기에서 콘텐츠 넘칠 경우 스크롤(scrollbar-hide로 숨김). */}
+      <div
+        className={cn(
+          "flex flex-1 flex-col items-center overflow-y-auto scrollbar-hide pt-5",
+          !footer && "pb-6",
+        )}
+      >
+        <div className="flex-1" aria-hidden />
+        {children}
+        <div className="flex-1" aria-hidden />
+      </div>
+      {/* 하단 CTA — h-full 레이아웃으로 콘텐츠 스크롤에 무관하게 항상 바닥 고정 */}
       {footer && (
-        <div className="sticky bottom-0 w-full pb-6 pt-3">
+        <div className="w-full shrink-0 pb-6 pt-3">
           {footer}
         </div>
       )}

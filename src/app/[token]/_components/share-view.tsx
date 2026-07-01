@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from "react";
 import { BgCloud } from "@/components/ui/bg-cloud";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CtaSmall } from "@/components/ui/cta-small";
-import { LinkIcon } from "@/components/ui/icons/link";
 import { Logo } from "@/components/ui/logo";
 
 // 공유 관리 뷰 (product-spec #4 · Figma F04 node 1212:6382) — GUI 2차 전경 정합.
@@ -168,16 +167,15 @@ export function ShareView({ surveyCode, respondentCount }: ShareViewProps) {
           </div>
         )}
 
-        {/* 버튼 행: 링크 복사 아이콘 + 카카오 공유 */}
+        {/* 버튼 행: 링크 복사(stroke_icn) + 카카오 공유(fill). 각 flex-1 균등 폭. */}
         <div className="flex flex-row items-center gap-2">
-          {/* 링크 복사 — 아이콘 전용 (Figma CTA_small icon 832:11782: 64×56px) */}
+          {/* 링크 복사 — 아이콘+텍스트 (Figma CTA_small stroke_icn 414:13238) */}
           <CtaSmall
-            variant="icon"
+            variant="stroke_icn"
             onClick={handleCopy}
-            aria-label="링크 복사"
+            className="flex-1"
           >
-            {/* figma-loose: Figma icn_link 28×28px → size-7(28px) */}
-            <LinkIcon className="size-7" />
+            링크 복사하기
           </CtaSmall>
           {/* 카카오톡 공유 — fill variant (Figma CTA_small fill 414:13237: bg-kakao #fee500) */}
           <CtaSmall
