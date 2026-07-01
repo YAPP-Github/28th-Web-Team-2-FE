@@ -44,21 +44,23 @@ export function CenteredScreen({
       )}
     >
       <BgCloud />
-      {/* 콘텐츠 영역 — flex-1으로 남은 공간 차지, 내부 flex-1 스페이서로 세로 중앙.
-          소형 기기에서 콘텐츠 넘칠 경우 스크롤(scrollbar-hide로 숨김). */}
+      {/* 콘텐츠 영역 — h-full 전체 차지(footer가 absolute라 flow에서 제외).
+          pb-[92px]: footer 오버레이 높이(pt-3 12 + h-14 56 + pb-6 24)만큼 하단 여백 확보.
+          콘텐츠가 길면 이 영역 안에서만 스크롤 → footer는 항상 그 위에 고정. */}
       <div
         className={cn(
-          "flex flex-1 flex-col items-center overflow-y-auto scrollbar-hide pt-5",
-          !footer && "pb-6",
+          "flex flex-1 flex-col items-center overflow-y-auto scrollbar-hide bg-transparent pt-5",
+          footer ? "pb-[92px]" : "pb-6",
         )}
       >
         <div className="flex-1" aria-hidden />
         {children}
         <div className="flex-1" aria-hidden />
       </div>
-      {/* 하단 CTA — h-full 레이아웃으로 콘텐츠 스크롤에 무관하게 항상 바닥 고정 */}
+      {/* 하단 CTA — absolute 오버레이. 콘텐츠 스크롤과 무관하게 항상 화면 하단 고정.
+          inset-x-0: 부모 px-5 패딩 박스 기준 좌우 0 → 버튼이 px-5 영역 안에 위치. */}
       {footer && (
-        <div className="w-full shrink-0 pb-6 pt-3">
+        <div className="absolute inset-x-5 bottom-0 pb-6 pt-3">
           {footer}
         </div>
       )}
