@@ -29,14 +29,13 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* 캐릭터 일러스트 (Figma F01 node 362:2151 img_character_hamster_insight — 말풍선·돋보기·네컷 합성 PNG).
-            에셋 public/assets/img_character_hamster_insight.png(4x 1121×1536, w280 h384 동일 비율). */}
+        {/* 캐릭터 일러스트 — 에셋 public/assets/img_character_hamster_film.png (4x 1380×1659). */}
         <Image
-          src="/assets/img_character_hamster_insight.png"
+          src="/assets/img_character_hamster_film.png"
           alt=""
           aria-hidden
-          width={280}
-          height={384}
+          width={345}
+          height={415}
           priority
           className="h-auto w-70 max-w-full select-none"
         />
