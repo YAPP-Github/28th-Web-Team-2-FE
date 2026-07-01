@@ -1,32 +1,27 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { BgCloud } from "@/components/ui/bg-cloud";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Cta } from "@/components/ui/cta";
 import { CtaSmall } from "@/components/ui/cta-small";
-import { DownloadIcon } from "@/components/ui/icons/download";
+import { LinkIcon } from "@/components/ui/icons/link";
 import { Logo } from "@/components/ui/logo";
-import { Tooltip } from "@/components/ui/tooltip";
 
-import { ShareCards } from "./share-cards";
-
-// 공유 관리 뷰 (product-spec #4 · Figma F04 node 414:13419) — GUI 1차 전경 정합.
+// 공유 관리 뷰 (product-spec #4 · Figma F04 node 1212:6382) — GUI 2차 전경 정합.
 // 핵심 루프: 링크를 퍼뜨려 참여자 모으기.
-// 하단 버튼: [내 링크 복사하기 flex-1] + [다운로드 아이콘 w-16] 단일 행.
-// 다운로드는 인스타 스토리 공유용 이미지 저장(story-share.png). <a download> 방식.
-// 배경(하늘 그라데이션·Union)·중앙 일러스트는 디자이너 별도 프레임 대기 → placeholder만.
-// 룰/Figma에서 느슨하게 처리한 지점은 `figma-loose:` 주석으로 표기(디자이너 합의용).
+// 하단 버튼: [링크 아이콘 w-16] gap-2 [카카오톡 공유하기 CtaSmall fill flex-1]
 // TODO(✍️): 24h 만료·전환 책임 위치(클라/서버).
-// TODO(✍️): product-spec #4의 수집 게이지·카운트다운(응답수/남은시간)은 Figma GUI 1차 F04에 UI가 없어 미구현.
-// 디자인 합의되면 status의 peerSubmissionCount/requiredPeerSubmissionCount/remainingSecondsToResultOpen로 추가.
+// TODO(✍️): 카카오 SDK 연동 — 현재 딥링크 fallback(앱 필요, 데스크탑 미지원).
+// TODO(✍️): img_character_hamster_set 에셋 미존재 → hamster_three로 임시 대체. 에셋 확보 후 교체.
 interface ShareViewProps {
   surveyCode: string;
+  respondentCount: number;
 }
 
-export function ShareView({ surveyCode }: ShareViewProps) {
+export function ShareView({ surveyCode, respondentCount }: ShareViewProps) {
   const router = useRouter();
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<number | null>(null);
@@ -76,8 +71,6 @@ export function ShareView({ surveyCode }: ShareViewProps) {
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const link = `${origin}/${surveyCode}`;
-  // 인스타 스토리 공유용 세로형(1080×1920) 이미지 — 다운로드 버튼으로 저장
-  const storyImageUrl = `${origin}/assets/story-share.png`;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -95,26 +88,14 @@ export function ShareView({ surveyCode }: ShareViewProps) {
     }
   };
 
-  // 인스타 스토리 공유용 이미지를 <a download>로 저장.
-  // 동일 출처(origin/assets/)라 fetch 없이 앵커 download 속성 직접 사용.
-  // 주의: <a download>는 자산 누락(404)을 동기적으로 검출하지 못함 — DOM 예외만 방어.
-  const handleDownload = () => {
-    try {
-      const a = document.createElement("a");
-      a.href = storyImageUrl;
-      a.download = "looky-story.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("이미지를 저장했어요");
-    } catch {
-      showToast("이미지 저장에 실패했어요. 다시 시도해주세요");
-    }
+  // TODO(✍️): 카카오 SDK 연동 필요. 카카오 앱 키 확보 후 Kakao.Share.sendDefault() 방식으로 교체.
+  const handleKakaoShare = () => {
+    window.location.href = `kakaotalk://send?text=${encodeURIComponent(link)}`;
   };
 
   return (
-    // 디자이너 #10: 로고·타이틀·캐러셀을 F01(CenteredScreen)과 동일하게 세로 중앙 정렬.
-    // 위·아래 flex-1 스페이서로 콘텐츠를 가운데 두고 CTA는 바닥 고정(데스크탑에서 위로 붙던 문제 해소).
+    // 디자이너 #10: 로고·타이틀·캐릭터를 F01(CenteredScreen)과 동일하게 세로 중앙 정렬.
+    // 위·아래 flex-1 스페이서로 콘텐츠를 가운데 두고 CTA는 바닥 고정.
     <main className="relative isolate flex min-h-full flex-col overflow-hidden bg-sky-gradient px-5 pb-6 pt-5">
       {/* 배경: 하늘 그라데이션(Figma 그대로) + 구름(BgCloud) */}
       <BgCloud />
@@ -130,7 +111,7 @@ export function ShareView({ surveyCode }: ShareViewProps) {
         onConfirm={handleLeave}
       />
 
-      {/* 위 여백 가변 → 콘텐츠(로고·타이틀·캐러셀) 세로 중앙 (F01 CenteredScreen과 동일) */}
+      {/* 위 여백 가변 → 콘텐츠 세로 중앙 */}
       <div className="flex-1" aria-hidden />
 
       {/* Figma 830:9448: 로고 가운데 정렬 */}
@@ -138,34 +119,46 @@ export function ShareView({ surveyCode }: ShareViewProps) {
         <Logo size="sm" />
       </div>
 
-      {/* Figma 830:9449: 로고+제목+본문 가운데 정렬. 로고 아래 mt-8(32px), 제목↔본문 gap-3(12px). */}
+      {/* Figma 1228:3453·3454: 타이틀 + 서브타이틀. 로고 아래 mt-8(32px), 제목↔본문 gap-3(12px). */}
       <div className="mt-8 flex flex-col gap-3 text-center">
-        {/* Figma 627:9619: head-point1/24 = display1(Y Spotlight) 24px, 타이틀 컬러 gray-900 (디자이너 확정 — F01과 통일) */}
+        {/* head-point1/24 = display1(Y Spotlight) 24px, gray-900 */}
         <h1 className="text-head1-24 font-display1 text-gray-900">
-          친구에게 링크를 공유하고
+          준비 완료!
           <br />
-          네컷을 받아보세요!
+          친구들에게 링크를 보내봐요
         </h1>
-        {/* Figma 627:9620: body/16-medium 16px Medium gray-300 (1줄) */}
+        {/* body/16-medium 16px Medium gray-300 */}
         <p className="text-body-16-medium text-gray-300">
-          답이 모이면, 24시간 뒤 네컷 결과가 열려요
+          친구 3명만 답하면 나만의 네컷이 완성돼요
         </p>
       </div>
 
-      {/* 공유 안내 카드 캐러셀 (Figma 830:9452). 제목블록↔카드 56px → mt-14.
-          캐러셀은 화면 끝까지(full-bleed) — -mx-5로 부모 px-5를 상쇄해 좌우 peek가 화면 가장자리에 붙게 한다. */}
-      <div className="mt-14 -mx-5">
-        <ShareCards />
+      {/* 응답자 카운터 칩 + 캐릭터 일러스트 (Figma 1228:3471 기준 하단 블록).
+          카운터 칩 175×33px, 아래 36px 간격 후 캐릭터 304×216px. */}
+      <div className="mt-8 flex flex-col items-center gap-9">
+        {/* 응답자 카운터 칩 — Figma node 1228:3472 */}
+        <div className="rounded-full border border-gray-200 bg-white px-5 py-1.5 text-body-14-medium text-gray-900">
+          지금까지 {respondentCount}명이 답했어요
+        </div>
+        {/* 캐릭터 일러스트 — Figma: img_character_hamster_set (304×216px).
+            에셋 미존재로 hamster_three 임시 대체. 에셋 확보 후 src 교체 요망. */}
+        <Image
+          src="/assets/img_character_hamster_three.png"
+          alt=""
+          aria-hidden
+          width={1072}
+          height={615}
+          className="h-auto w-full max-w-[304px] select-none"
+        />
       </div>
 
-      {/* 아래 여백 가변 → 콘텐츠 세로 중앙 + CTA 바닥 고정 (F01 CenteredScreen과 동일) */}
+      {/* 아래 여백 가변 → 콘텐츠 세로 중앙 + CTA 바닥 고정 */}
       <div className="flex-1" aria-hidden />
 
-      {/* 공유 CTA — 단일 행: [링크 복사 flex-1] gap-2 [다운로드 아이콘 w-16]
-          Figma Frame 2085673268: row gap-8px, justify-center. CTA 278px + 다운로드 64px + gap 8px = 350.
-          모바일: CTA flex-1, 다운로드 고정 w-16(64px). */}
+      {/* 공유 CTA — 단일 행: [링크 아이콘 w-16] gap-2 [카카오톡 공유하기 flex-1]
+          Figma Frame 2085673267: row gap-8px. CTA_small[icn_link] 64px + CTA(카카오) 278px + gap 8px = 350. */}
       <div className="relative flex flex-col pt-7">
-        {/* 토스트 — Figma F04(627:9624): CTA 위 중앙, 버튼과 8px 간격(mb-2) */}
+        {/* 토스트 — Figma 1228:3455: CTA 위 중앙, 버튼과 8px 간격(mb-2) */}
         {toast && (
           <div
             role="status"
@@ -175,28 +168,24 @@ export function ShareView({ surveyCode }: ShareViewProps) {
           </div>
         )}
 
-        {/* 다운로드 버튼 위 툴팁 — 상시 안내 요소 (토스트와 별개)
-            Figma 832:14436: 꼬리가 다운로드 버튼(오른쪽)을 가리키도록 tailAlign="right".
-            figma-loose: 툴팁 전체를 오른쪽 정렬해 다운로드 버튼(w-16) 위에 위치 */}
-        <div className="mb-4 flex justify-end">
-          <Tooltip tailAlign="right">
-            <b>인스타 스토리</b> 공유용 이미지 저장하기!
-          </Tooltip>
-        </div>
-
-        {/* 버튼 행: 링크 복사 + 다운로드 */}
+        {/* 버튼 행: 링크 복사 아이콘 + 카카오 공유 */}
         <div className="flex flex-row items-center gap-2">
-          <Cta onClick={handleCopy} className="flex-1">
-            내 링크 복사하기
-          </Cta>
-          {/* 아이콘 전용 variant: w-16(64px) × h-14(56px), border gray-200, bg white */}
+          {/* 링크 복사 — 아이콘 전용 (Figma CTA_small icon 832:11782: 64×56px) */}
           <CtaSmall
             variant="icon"
-            onClick={handleDownload}
-            aria-label="인스타 스토리 공유용 이미지 저장"
+            onClick={handleCopy}
+            aria-label="링크 복사"
           >
-            {/* figma-loose: Figma 28×28px 아이콘 → size-7(28px) */}
-            <DownloadIcon className="size-7" />
+            {/* figma-loose: Figma icn_link 28×28px → size-7(28px) */}
+            <LinkIcon className="size-7" />
+          </CtaSmall>
+          {/* 카카오톡 공유 — fill variant (Figma CTA_small fill 414:13237: bg-kakao #fee500) */}
+          <CtaSmall
+            variant="fill"
+            onClick={handleKakaoShare}
+            className="flex-1"
+          >
+            카카오톡 공유하기
           </CtaSmall>
         </div>
       </div>
