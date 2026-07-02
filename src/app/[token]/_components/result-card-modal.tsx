@@ -68,9 +68,9 @@ export function ResultCardModal({
 
   return (
     <>
-      {/* 딤 오버레이 — 탭하면 닫힘. footer(공유바)는 이보다 높은 z-index로 항상 위에 유지 */}
+      {/* 딤 오버레이 — 탭하면 닫힘. z-50으로 footer(z-40) 위 → 힌트(result-tap-hint)처럼 공유바도 함께 어두워짐 */}
       <motion.div
-        className="fixed inset-0 z-30 bg-black/60 md:absolute"
+        className="fixed inset-0 z-50 bg-black/60 md:absolute"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -80,7 +80,7 @@ export function ResultCardModal({
       />
 
       {/* 카드 컨테이너 — 화면 세로·가로 중앙(Figma 202=844프레임 정중앙, 상태바 없는 앱은 중앙정렬로 정합) */}
-      <div className="pointer-events-none fixed inset-0 z-30 mx-auto flex w-full max-w-[390px] items-center justify-center md:absolute">
+      <div className="pointer-events-none fixed inset-0 z-50 mx-auto flex w-full max-w-[390px] items-center justify-center md:absolute">
         <motion.div
           layoutId={`f05-card-${quadrantKey}`}
           transition={{ duration: phase === "opening" ? 0.6 : 0.4 }}
