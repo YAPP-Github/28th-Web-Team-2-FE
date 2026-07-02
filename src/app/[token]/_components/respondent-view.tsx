@@ -177,7 +177,7 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
     );
   }
 
-  // done — Figma F06 완료 화면 노드 414:13540 정합.
+  // done — Figma F06 완료 화면(A레터) 노드 1212:2725 정합.
   return (
     <CenteredScreen
       footer={
@@ -214,13 +214,13 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
           </div>
         </div>
 
-        {/* 완료 일러스트 — img_character_hamster_film(350×421). 에셋 1380×1659. 장식이라 alt="". */}
+        {/* 완료 일러스트 — img_character_hamster_letter(350×280). 에셋 1400×1120. 장식이라 alt="". */}
         <Image
-          src="/assets/img_character_hamster_film.png"
+          src="/assets/img_character_hamster_letter.png"
           alt=""
           aria-hidden
           width={350}
-          height={421}
+          height={280}
           className="h-auto w-full max-w-full select-none"
         />
       </div>
