@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { BgCloud } from "@/components/ui/bg-cloud";
+import { cn } from "@/lib/utils";
 
 // F05 결과 진입 로딩 — 순수 5초 고정 연출(데이터 대기 아님. 이 화면 진입 시 결과는 항상 READY).
 // Figma node 1254-7607(A: 팔 내림) / 1254-7618(B: 팔 올림) — 1초마다 교차, 5초 후 onDone.
@@ -47,19 +48,28 @@ export function ResultLoading({ onDone }: ResultLoadingProps) {
           </p>
         </div>
 
-        <Image
-          src={
-            showA
-              ? "/assets/img_character_hamster_down.png"
-              : "/assets/img_character_hamster_up.png"
-          }
-          alt=""
-          aria-hidden
-          width={272}
-          height={334}
-          priority
-          className="w-[272px] max-w-full select-none"
-        />
+        {/* 두 컷을 겹쳐 쌓고 opacity만 토글 — src 교체 시 첫 스왑에서 발생하던
+            디코딩·페인트 깜빡임 제거. 둘 다 마운트 시 디코딩·페인트되므로 이후 전환은 순수 CSS. */}
+        <div className="relative w-[272px] max-w-full select-none">
+          <Image
+            src="/assets/img_character_hamster_down.png"
+            alt=""
+            aria-hidden
+            width={272}
+            height={334}
+            priority
+            className={cn("w-full", showA ? "opacity-100" : "opacity-0")}
+          />
+          <Image
+            src="/assets/img_character_hamster_up.png"
+            alt=""
+            aria-hidden
+            width={272}
+            height={334}
+            priority
+            className={cn("absolute inset-0 w-full", showA ? "opacity-0" : "opacity-100")}
+          />
+        </div>
       </div>
     </main>
   );
