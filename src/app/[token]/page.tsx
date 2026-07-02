@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { useGetSurveyStatusAPI } from "@/apis/survey/queries";
 import { isApiError } from "@/apis/error";
-import { isOwner } from "@/lib/local-session";
+import { isOwner, isSurveyDone } from "@/lib/local-session";
 import { Cta } from "@/components/ui/cta";
 
 import { ExpiredView } from "./_components/expired-view";
@@ -25,6 +25,9 @@ export default function TokenPage() {
 
   // ── hooks (early return 앞) ───────────────────────────────────────────────
   const owner = isOwner(token);
+  // 참여자가 이 링크 설문을 아직 제출 전이면, 폴링으로 GENERATING/READY가 떠도
+  // 설문 화면(RespondentView)에서 강제로 빠지지 않게 가드 — 설문 도중 화면 전환 방지
+  const respondentInProgress = !owner && !isSurveyDone(token);
 
   const {
     data: status,
@@ -75,8 +78,8 @@ export default function TokenPage() {
 
   // ── 4. resultStatus 기준 분기 ─────────────────────────────────────────────
 
-  // READY: 결과 완성
-  if (status.resultStatus === "READY") {
+  // READY: 결과 완성 (단, 설문 미제출 참여자는 제외 — 아래 최종 분기에서 계속 설문 진행)
+  if (status.resultStatus === "READY" && !respondentInProgress) {
     return (
       <div className="flex h-full flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto scrollbar-hide">
@@ -92,7 +95,8 @@ export default function TokenPage() {
   }
 
   // GENERATING: AI 처리 중 — 폴링 계속. 세부 단계(generationPhase)별 체크리스트 분기 (F05 로딩A/B)
-  if (status.resultStatus === "GENERATING") {
+  // 단, 설문 미제출 참여자는 제외 — 아래 최종 분기에서 계속 설문 진행
+  if (status.resultStatus === "GENERATING" && !respondentInProgress) {
     return (
       <GeneratingView
         nickname={status.userNickname}
