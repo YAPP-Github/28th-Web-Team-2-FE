@@ -89,6 +89,13 @@ export default function SelfSurveyPage() {
     if (session?.surveyCode) saveSelfSurveyCache(session.surveyCode, apiData);
   }, [recoveredData, submissionData]);
 
+  // 다음 화면(F04 공유 페이지) 캐릭터 이미지(523KB)를 설문 푸는 동안 미리 받아 캐시에 적재
+  // → 자기설문 완료 후 /[surveyCode](ShareView) 진입 시 즉시 표시(늦은 로드 방지).
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = "/assets/img_character_hamster_set.png";
+  }, []);
+
   const effectiveData = cachedData ?? recoveredData ?? submissionData;
 
   // ── 로딩 — 문항 불러오는 중 ────────────────────────────────────────────────
