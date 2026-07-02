@@ -93,10 +93,11 @@ export function ResultTapHint({
             </span>
           </div>
 
-          {/* 말풍선 — 카드 바로 아래 12px(Figma), 꼬리 위 삼각형 */}
+          {/* 말풍선 — 삼각형 꼬리 끝이 카드 하단에서 12px 뜨도록.
+              꼬리(size-3 rotate-45)가 박스 위로 ~8.5px 솟으므로 컨테이너 오프셋 = 12 + 8.5 ≈ 20 */}
           <div
             className="pointer-events-none absolute"
-            style={{ top: rect.top + rect.height + 12, left: rect.left }}
+            style={{ top: rect.top + rect.height + 20, left: rect.left }}
           >
             <div className="relative">
               <div className="absolute -top-1.5 left-4 size-3 rotate-45 rounded-[2px] bg-gray-50" />
