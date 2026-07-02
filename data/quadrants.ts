@@ -32,11 +32,10 @@ export const QUADRANT_SHORT_LABEL: Record<QuadrantKey, string> = {
   unknown: "아무도 모르는",
 };
 
-// F05 카드 앞면(확대 모달) 좌하단 라벨칩 — 그리드 라벨과 다른 변형(Figma node 1268-7404).
-// ⚠️ "open"(모두가 아는 내 모습)만 Figma 텍스트 확인됨. 나머지 3개는 동일 어형 추정 — 디자이너 확인 필요.
+// F05 카드 앞면(확대 모달) 좌하단 라벨칩 — 그리드 라벨과 동일 어형("~ 나")으로 통일.
 export const QUADRANT_FRONT_LABEL: Record<QuadrantKey, string> = {
-  open: "모두가 아는 내 모습",
-  blind: "친구만 아는 내 모습",
-  hidden: "나만 아는 내 모습",
-  unknown: "아무도 모르는 내 모습",
+  open: "모두가 아는 나",
+  blind: "친구만 아는 나",
+  hidden: "나만 아는 나",
+  unknown: "아무도 모르는 나",
 };
