@@ -124,6 +124,8 @@
   /* yellow — F05 형용사 태그(yellow/200 배경 + yellow/800 텍스트). Figma Variable 동기화. */
   --color-yellow-200: #fff4c1;
   --color-yellow-800: #7b7453;
+  /* green — F05 로딩 화면 grad/background_green 끝색(node 1268-8343). Figma Variable 동기화. */
+  --color-green-200: #bce59d;
 
   /* ── 아이콘 전용 색상표 (서비스 색상표와 분리한 의미 레이어) ──
      Figma node 395:9882 "아이콘" 섹션 기준. 아이콘 컴포넌트 기본색.
@@ -138,7 +140,6 @@
      토큰명·값은 Figma 토큰 정의 후 갱신 요망. */
   --color-kakao: #fee500;    /* 카카오 브랜드 옐로우 — 화이트리스트 밖 신설 */
   --radius-field: 0.75rem;   /* 12px — textfield, btn_survey */
-  --shadow-bar: 0px -2px 6px rgba(0, 0, 0, 0.03); /* 하단 공유바 상단 그림자 (Figma blur 6) */
   --width-logo-sm: 5.25rem;  /* 84px  — Figma logo sm 인스턴스 (84×23.5) */
   --width-logo-md: 6.25rem;  /* 100px — Figma logo md 인스턴스 (100×28) */
   --radius-cta: 1rem;        /* 16px — CTA, CTA_small */
@@ -257,6 +258,17 @@
     180deg,
     var(--color-white) 21.059%,
     var(--color-gray-200) 100%
+  );
+}
+
+/* 초록 그라데이션 — F05 결과 생성 로딩 화면 전용.
+   Figma 토큰 grad/background_green (node 1268-8343): linear-gradient(180deg, white 21.059%, green-200 100%).
+   값 그대로 반영(white=#fff, green-200=#bce59d). sky/gray-gradient와 동일 구조, 끝색만 초록. */
+@utility bg-green-gradient {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-white) 21.059%,
+    var(--color-green-200) 100%
   );
 }
 
