@@ -81,6 +81,14 @@ export function useGetSurveyStatusAPI(
     },
     enabled: !!surveyCode && options?.enabled !== false,
     refetchInterval: options?.refetchInterval,
+    // 상태 폴링 전용 오버라이드 (전역 기본값: refetchOnWindowFocus:false / IntervalInBackground:false).
+    // 주 타겟이 "인스타 공유 → 앱 이탈 → 복귀" 모바일 흐름이라, 백그라운드에서 폴링이 멈추고
+    // 복귀해도 재요청이 없으면 수동 새로고침 전까진 GENERATING이 갱신 안 됨 → 아래 셋을 켠다.
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    // 라이브 상태이므로 항상 최신 — 전역 staleTime(60s) 상속 시 복귀 직후 재요청이 스킵됨
+    staleTime: 0,
   });
 }
 
