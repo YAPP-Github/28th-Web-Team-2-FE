@@ -64,7 +64,6 @@ export function ResultCardModal({
 
   const isEmpty = !imageUrl && !interpretation;
   const isFlipped = phase === "flipping" || phase === "back";
-  const title = definitionKeyword ? `${definitionKeyword} ${nickname}` : nickname;
 
   return (
     <>
@@ -160,7 +159,10 @@ export function ResultCardModal({
 
                 <div className="flex w-full flex-col gap-5">
                   <div className="flex flex-col gap-2">
-                    <p className="text-head1-24 font-display1 text-gray-900">{title}</p>
+                    <p className="text-head1-24 font-display1 text-gray-900">
+                      {definitionKeyword && `${definitionKeyword} `}
+                      <span className="text-gray-300">{nickname}</span>
+                    </p>
                     {adjectiveKeywords.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
                         {adjectiveKeywords.map((adj, i) => (
