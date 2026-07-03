@@ -25,7 +25,7 @@ export function RetryView({
         // 하단 블록 — 안내문 ↔ CTA: Figma gap 32 + CTA컨테이너 pt 8 = 40(gap-10)
         <div className="flex w-full flex-col items-center gap-10">
           <p className="text-body-16-medium text-gray-300">
-            24시간 안에 친구 3명이 참여해야
+            20분 안에 친구 3명이 참여해야
             <br />
             네컷 결과를 만들 수 있어요
           </p>
@@ -39,10 +39,10 @@ export function RetryView({
         {/* 로고+타이틀 그룹 (602:3483) — 로고 ↔ 타이틀블록 gap 56(gap-14) */}
         <div className="flex flex-col items-center gap-14">
           <Logo />
-          {/* 타이틀 블록 (2085673264) — 제목 ↔ 서브 gap 12(gap-3). Figma "3명" 하드코딩 → 목표 상수 3 */}
+          {/* 타이틀 블록 (2085673264) — 제목 ↔ 서브 gap 12(gap-3) */}
           <div className="flex flex-col items-center gap-3">
             <h1 className="text-head1-24 font-display1 text-gray-900">
-              앗! 3명이 모이지 않았어요..
+              앗 이미지 생성에 실패했어요
             </h1>
             <p className="text-body-18-medium text-gray-300">다시 시작해 볼까요?</p>
           </div>
