@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/assets/og-image.png",
-        width: 1200,
-        height: 630,
+        width:  800,
+        height: 800,
         alt: "looky — 친구들이 본 나를 인생네컷으로",
       },
     ],
