@@ -25,7 +25,14 @@ export function RetryView({
         // 하단 블록 — 안내문 ↔ CTA: Figma gap 32 + CTA컨테이너 pt 8 = 40(gap-10)
         <div className="flex w-full flex-col items-center gap-10">
           <p className="text-body-16-medium text-gray-300">
-            @homin_looky
+            <a
+              href="https://www.instagram.com/homin_looky/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2"
+            >
+              @homin_looky
+            </a>
             <br />
             인스타그램으로 제보해 주세요
           </p>
