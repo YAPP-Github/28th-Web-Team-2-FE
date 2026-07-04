@@ -177,7 +177,9 @@ export function ResultView({
           ? `${window.location.origin}/assets/og-image.png`
           : "/assets/og-image.png",
     });
-    showToast(result === "shared" ? "카카오톡 공유 완료!" : "링크 복사 완료!");
+    // 카카오 공유 시트가 열린 경우(result === "shared")엔 토스트를 띄우지 않음.
+    // 복사로 fallback된 경우에만 안내.
+    if (result !== "shared") showToast("링크 복사 완료!");
   };
 
   // ── 게이트 화면 (phase === 'gate') — Figma 노드 414:13565 / 589:4060 ────────
