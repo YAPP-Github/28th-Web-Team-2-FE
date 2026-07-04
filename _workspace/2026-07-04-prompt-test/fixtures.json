@@ -1,0 +1,20 @@
+{
+  "note": "테스트용 설문 픽스처. SELF 8문항(사용자 제공) + FRIEND 보강(조하리 OPEN/BLIND 대비 검증용). submissionAnswerId는 1..N 임의 부여, traitCode는 문항 성향 추정.",
+  "answers": [
+    { "submissionAnswerId": 1, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "O", "question": "내가 새로 나온 앱·기기·트렌드를 마주했다면?", "answer": "유행이 지나고 잠잠해지면 써본다." },
+    { "submissionAnswerId": 2, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "O", "question": "규칙이나 관습 앞에서 나의 태도는?", "answer": "상황을 보고 적당히 맞춘다." },
+    { "submissionAnswerId": 3, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "C", "question": "일을 시작하기 전 나의 준비 방식은?", "answer": "별 계획 없이 그냥 시작한다." },
+    { "submissionAnswerId": 4, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "C", "question": "우선순위를 정할 때 나의 판단은?", "answer": "자주 우왕좌왕한다." },
+    { "submissionAnswerId": 5, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "E", "question": "발표 차례가 왔을 때 나의 반응은?", "answer": "결국 떠밀려서 한다." },
+    { "submissionAnswerId": 6, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "E", "question": "회식 자리에서 나의 모습은?", "answer": "끝날 때까지는 있는다." },
+    { "submissionAnswerId": 7, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "A", "question": "조금 귀찮은 부탁 앞에서 나의 선택은?", "answer": "적당한 핑계를 대고 슬쩍 빠진다." },
+    { "submissionAnswerId": 8, "respondentLabel": "본인", "submitterType": "SELF", "traitCode": "A", "question": "단체 의견이 갈려 분위기가 싸해졌을 때 나의 행동은?", "answer": "어떻게든 지지 않으려고 버틴다." },
+
+    { "submissionAnswerId": 9, "respondentLabel": "친구1", "submitterType": "FRIEND", "traitCode": "E", "question": "이 사람은 회식 자리에서 어떤 모습일까?", "answer": "분위기를 띄우며 끝까지 함께한다." },
+    { "submissionAnswerId": 10, "respondentLabel": "친구1", "submitterType": "FRIEND", "traitCode": "A", "question": "이 사람은 부탁을 받으면 어떻게 할까?", "answer": "웬만하면 챙겨서 들어준다." },
+    { "submissionAnswerId": 11, "respondentLabel": "친구1", "submitterType": "FRIEND", "traitCode": "O", "question": "이 사람은 새로운 트렌드를 만나면?", "answer": "관심은 많은데 신중하게 지켜본다." },
+    { "submissionAnswerId": 12, "respondentLabel": "친구2", "submitterType": "FRIEND", "traitCode": "C", "question": "이 사람은 일을 시작하기 전 어떻게 준비할까?", "answer": "생각보다 야무지게 챙긴다." },
+    { "submissionAnswerId": 13, "respondentLabel": "친구2", "submitterType": "FRIEND", "traitCode": "E", "question": "이 사람은 발표 차례가 오면?", "answer": "은근 즐기면서 잘 해낸다." },
+    { "submissionAnswerId": 14, "respondentLabel": "친구2", "submitterType": "FRIEND", "traitCode": "A", "question": "단체 의견이 갈리면 이 사람은?", "answer": "끝까지 자기 의견을 밀어붙인다." }
+  ]
+}

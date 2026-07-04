@@ -1,0 +1,390 @@
+<style>
+  :root {
+    --ground: #FBF7F4;
+    --surface: #FFFFFF;
+    --surface-2: #FCF9F7;
+    --ink: #2A2320;
+    --muted: #8B8079;
+    --faint: #B4AAA2;
+    --hairline: #ECE2DB;
+    --accent: #D8735A;
+    /* quadrant accents */
+    --q-open: #D8735A;
+    --q-blind: #4E90BE;
+    --q-hidden: #A25E9C;
+    --q-unknown: #6E9C79;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+      "Noto Sans KR", "Malgun Gothic", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1A1614;
+      --surface: #241F1C;
+      --surface-2: #2B2521;
+      --ink: #F1EAE4;
+      --muted: #A99E96;
+      --faint: #7C726B;
+      --hairline: #37302B;
+      --accent: #EC9077;
+      --q-open: #EC9077;
+      --q-blind: #78B3DC;
+      --q-hidden: #C588BF;
+      --q-unknown: #93BE9E;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #FBF7F4; --surface: #FFFFFF; --surface-2: #FCF9F7; --ink: #2A2320;
+    --muted: #8B8079; --faint: #B4AAA2; --hairline: #ECE2DB; --accent: #D8735A;
+    --q-open: #D8735A; --q-blind: #4E90BE; --q-hidden: #A25E9C; --q-unknown: #6E9C79;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --ground: #1A1614; --surface: #241F1C; --surface-2: #2B2521; --ink: #F1EAE4;
+    --muted: #A99E96; --faint: #7C726B; --hairline: #37302B; --accent: #EC9077;
+    --q-open: #EC9077; --q-blind: #78B3DC; --q-hidden: #C588BF; --q-unknown: #93BE9E;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body, .lk-page { margin: 0; }
+  .lk-page {
+    font-family: var(--font-sans);
+    background: var(--ground);
+    color: var(--ink);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(20px, 5vw, 56px) clamp(16px, 5vw, 40px) 72px;
+  }
+  .lk-wrap { max-width: 1040px; margin: 0 auto; }
+
+  .lk-eyebrow {
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 14px;
+  }
+  h1.lk-title {
+    font-size: clamp(26px, 5vw, 40px); line-height: 1.2; font-weight: 800;
+    letter-spacing: -0.02em; margin: 0 0 12px; text-wrap: balance;
+  }
+  .lk-lede {
+    font-size: clamp(15px, 2.2vw, 17px); color: var(--muted);
+    max-width: 60ch; margin: 0 0 24px;
+  }
+
+  .lk-meta {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 40px;
+  }
+  .lk-chip {
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--hairline); background: var(--surface);
+    color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .lk-chip b { color: var(--ink); font-weight: 700; }
+
+  .lk-section-head {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin: 0 0 6px; padding-top: 8px;
+  }
+  .lk-section-head h2 {
+    font-size: 19px; font-weight: 800; margin: 0; letter-spacing: -0.01em;
+  }
+  .lk-section-note { font-size: 13.5px; color: var(--faint); margin: 0 0 22px; }
+
+  .lk-grid {
+    display: grid; grid-template-columns: 1fr; gap: 16px;
+  }
+  @media (min-width: 760px) {
+    .lk-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+  }
+
+  .lk-card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-top: 3px solid var(--q);
+    border-radius: 14px;
+    padding: 22px 22px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .lk-card-top { display: flex; flex-direction: column; gap: 9px; }
+  .lk-qlabel {
+    display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+    color: var(--q);
+    background: color-mix(in srgb, var(--q) 12%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--q) 28%, transparent);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .lk-qlabel .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--q); }
+  .lk-qlabel .src { color: var(--muted); font-weight: 500; }
+
+  .lk-typename {
+    font-size: 23px; font-weight: 800; letter-spacing: -0.02em; margin: 0;
+    text-wrap: balance;
+  }
+  .lk-oneline {
+    font-size: 15px; margin: 0;
+  }
+  .lk-oneline .mod { color: var(--q); font-weight: 700; }
+  .lk-oneline .nick { color: var(--faint); }
+  .lk-oneline-tag {
+    display: block; font-size: 11.5px; color: var(--faint); margin-top: 3px;
+    letter-spacing: 0.01em;
+  }
+
+  .lk-adjs { display: flex; flex-wrap: wrap; gap: 7px; }
+  .lk-adj {
+    font-size: 13px; padding: 5px 11px; border-radius: 8px;
+    background: color-mix(in srgb, var(--q) 9%, var(--surface-2));
+    color: var(--ink); border: 1px solid color-mix(in srgb, var(--q) 20%, transparent);
+  }
+
+  .lk-body { font-size: 14.5px; color: var(--ink); margin: 0; }
+
+  .lk-imgblock {
+    margin-top: 4px; border-top: 1px dashed var(--hairline); padding-top: 16px;
+  }
+  .lk-imgblock > .h {
+    font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin: 0 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lk-imgblock > .h .tag {
+    font-size: 10.5px; letter-spacing: 0; text-transform: none; font-weight: 600;
+    color: var(--q); background: color-mix(in srgb, var(--q) 12%, transparent);
+    padding: 2px 7px; border-radius: 6px;
+  }
+  .lk-dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; margin: 0; }
+  .lk-dl dt {
+    font-size: 12.5px; color: var(--muted); font-weight: 600; white-space: nowrap;
+  }
+  .lk-dl dd { font-size: 13.5px; margin: 0; color: var(--ink); }
+
+  .lk-spec {
+    margin-top: 44px; background: var(--surface-2); border: 1px solid var(--hairline);
+    border-radius: 14px; padding: 22px 24px;
+  }
+  .lk-spec h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; }
+  .lk-spec ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+  .lk-spec li { font-size: 13.5px; color: var(--muted); }
+  .lk-spec li b { color: var(--ink); font-weight: 700; }
+  .lk-spec code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    color: var(--accent); padding: 1px 6px; border-radius: 5px;
+  }
+
+  details.lk-appendix { margin-top: 28px; }
+  details.lk-appendix summary {
+    cursor: pointer; font-size: 14px; font-weight: 700; color: var(--ink);
+    padding: 12px 0; list-style: none;
+  }
+  details.lk-appendix summary::-webkit-details-marker { display: none; }
+  details.lk-appendix summary::before { content: "▸ "; color: var(--accent); }
+  details.lk-appendix[open] summary::before { content: "▾ "; }
+  .lk-tablewrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 12px; }
+  table.lk-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.lk-table th, table.lk-table td {
+    text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--hairline);
+    vertical-align: top;
+  }
+  table.lk-table th {
+    background: var(--surface-2); color: var(--muted); font-weight: 700;
+    position: sticky; top: 0; font-size: 12px;
+  }
+  table.lk-table td.id { font-variant-numeric: tabular-nums; color: var(--faint); }
+  table.lk-table td .who { font-size: 11px; color: var(--faint); }
+
+  .lk-foot { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--hairline);
+    font-size: 12.5px; color: var(--faint); }
+
+  .lk-fade { opacity: 0; transform: translateY(8px); animation: lkin 0.5s ease forwards; }
+  .lk-fade:nth-child(2) { animation-delay: 0.05s; }
+  .lk-fade:nth-child(3) { animation-delay: 0.1s; }
+  .lk-fade:nth-child(4) { animation-delay: 0.15s; }
+  @keyframes lkin { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .lk-fade { animation: none; opacity: 1; transform: none; } }
+</style>
+
+<div class="lk-page">
+  <div class="lk-wrap">
+
+    <p class="lk-eyebrow">looky · 결과 생성 검수</p>
+    <h1 class="lk-title">1차 LLM 응답 샘플 — 조하리 4칸 카피 &amp; 이미지 연출</h1>
+    <p class="lk-lede">
+      설문 응답(본인 8 + 친구 6)을 넣어 1차 LLM이 만든 결과입니다. 사분면마다
+      <b>세부 유형 명 · 한줄 정의 · 형용사 · 본문</b> 카피와, 2차 이미지 생성에 그대로 들어갈
+      <b>연출 변수 6개</b>를 함께 봅니다. 톤·길이·이미지 방향이 우리 결에 맞는지 봐주세요.
+    </p>
+
+    <div class="lk-meta">
+      <span class="lk-chip">모델 <b>gpt-5.4-mini</b></span>
+      <span class="lk-chip">토큰 입력 <b>3,113</b> · 출력 <b>1,531</b></span>
+      <span class="lk-chip">생성당 <b>≈ 4~5원</b> (텍스트 1콜)</span>
+      <span class="lk-chip">2026-07-04 · 테스트 샘플</span>
+    </div>
+
+    <div class="lk-section-head">
+      <h2>조하리의 창 4칸</h2>
+    </div>
+    <p class="lk-section-note">
+      배치 = 인생네컷과 같은 2×2. 색은 칸 구분용이며 실제 디자인 색이 아닙니다. 예시 닉네임 “송이”.
+    </p>
+
+    <div class="lk-grid">
+
+      <!-- OPEN -->
+      <article class="lk-card lk-fade" style="--q: var(--q-open);">
+        <div class="lk-card-top">
+          <span class="lk-qlabel"><span class="dot"></span>모두가 아는 나 <span class="src">· 본인 ∩ 친구</span></span>
+          <h3 class="lk-typename">신중한 관찰가</h3>
+          <p class="lk-oneline"><span class="mod">세상을 천천히 살피는</span> <span class="nick">송이</span>
+            <span class="lk-oneline-tag">카드 제목 = 한줄 정의 + 닉네임</span>
+          </p>
+        </div>
+        <div class="lk-adjs">
+          <span class="lk-adj">관심은 많은데 바로 안 나감</span>
+          <span class="lk-adj">유행보다 타이밍 보는 편</span>
+        </div>
+        <p class="lk-body">새로운 흐름을 보더라도 바로 뛰기보다 한 번 더 살피고 맞는 때를 기다려요. 관심은 분명하지만 성급함보다 안정감을 더 챙기는 편이에요.</p>
+        <div class="lk-imgblock">
+          <p class="h">이미지 연출 <span class="tag">2차 프롬프트 변수</span></p>
+          <dl class="lk-dl">
+            <dt>상황·감정</dt><dd>새로운 물건을 앞에 두고 호기심과 신중함이 함께 도는 순간</dd>
+            <dt>시선</dt><dd>대상을 한 번 보고 주변을 다시 살피는 시선</dd>
+            <dt>포즈</dt><dd>몸은 살짝 뒤로 둔 채 고개만 기울여 조심스럽게 보는 자세</dd>
+            <dt>소품</dt><dd>새 기기 1, 작은 메모지 1</dd>
+            <dt>배경</dt><dd>단순한 책상 위, 큰 면 위주 미니멀 구성</dd>
+            <dt>조명·톤</dt><dd>차분한 낮빛, 회색·연두 톤으로 정리된 담백한 분위기</dd>
+          </dl>
+        </div>
+      </article>
+
+      <!-- BLIND -->
+      <article class="lk-card lk-fade" style="--q: var(--q-blind);">
+        <div class="lk-card-top">
+          <span class="lk-qlabel"><span class="dot"></span>친구만 아는 나 <span class="src">· 친구만</span></span>
+          <h3 class="lk-typename">무대 체질인 사람</h3>
+          <p class="lk-oneline"><span class="mod">막상 하면 반짝해내는</span> <span class="nick">송이</span>
+            <span class="lk-oneline-tag">카드 제목 = 한줄 정의 + 닉네임</span>
+          </p>
+        </div>
+        <div class="lk-adjs">
+          <span class="lk-adj">떠밀려도 잘하는 편</span>
+          <span class="lk-adj">은근 즐기는 무대형</span>
+        </div>
+        <p class="lk-body">스스로는 부담스럽게 느껴도 사람들 앞에 서면 생각보다 자연스럽게 역할을 해내요. 주변은 그 활기와 여유를 더 크게 느끼기 쉬워요.</p>
+        <div class="lk-imgblock">
+          <p class="h">이미지 연출 <span class="tag">2차 프롬프트 변수</span></p>
+          <dl class="lk-dl">
+            <dt>상황·감정</dt><dd>사람들 앞에 서야 하는 순간이지만 점점 살아나는 긴장과 활력</dd>
+            <dt>시선</dt><dd>정면을 향해 또렷하게 시선을 두는 모습</dd>
+            <dt>포즈</dt><dd>처음엔 망설이다가도 자세를 세우고 중심을 잡는 포즈</dd>
+            <dt>소품</dt><dd>마이크 1, 발표 자료 1</dd>
+            <dt>배경</dt><dd>넓은 무대 한쪽, 큰 면 위주 단순 구성</dd>
+            <dt>조명·톤</dt><dd>맑은 실내 조명, 밝은 파랑·미색으로 정돈된 생기</dd>
+          </dl>
+        </div>
+      </article>
+
+      <!-- HIDDEN -->
+      <article class="lk-card lk-fade" style="--q: var(--q-hidden);">
+        <div class="lk-card-top">
+          <span class="lk-qlabel"><span class="dot"></span>나만 아는 나 <span class="src">· 나만</span></span>
+          <h3 class="lk-typename">속마음 지키는 사람</h3>
+          <p class="lk-oneline"><span class="mod">속으론 계산하며 아끼는</span> <span class="nick">송이</span>
+            <span class="lk-oneline-tag">카드 제목 = 한줄 정의 + 닉네임</span>
+          </p>
+        </div>
+        <div class="lk-adjs">
+          <span class="lk-adj">괜히 힘 빼기 싫은 편</span>
+          <span class="lk-adj">쉽게 다 내주지 않음</span>
+        </div>
+        <p class="lk-body">겉으로는 무난하게 맞춰 보여도 실제로는 손해를 줄이고 싶어 해요. 부탁이나 갈등 앞에서는 속도를 조절하며 스스로를 지키는 편이에요.</p>
+        <div class="lk-imgblock">
+          <p class="h">이미지 연출 <span class="tag">2차 프롬프트 변수</span></p>
+          <dl class="lk-dl">
+            <dt>상황·감정</dt><dd>부탁과 압박 사이에서 조용히 선을 지키는 조심스러운 순간</dd>
+            <dt>시선</dt><dd>옆을 흘끗 보며 상황의 흐름을 살피는 시선</dd>
+            <dt>포즈</dt><dd>한 발 물러서서 팔을 가볍게 모으고 버티는 자세</dd>
+            <dt>소품</dt><dd>작은 가방 1, 접힌 쪽지 1</dd>
+            <dt>배경</dt><dd>조용한 실내 복도, 큰 면 위주 단순 구성</dd>
+            <dt>조명·톤</dt><dd>부드러운 중간 톤, 회색·베이지로 가라앉은 차분한 빛</dd>
+          </dl>
+        </div>
+      </article>
+
+      <!-- UNKNOWN -->
+      <article class="lk-card lk-fade" style="--q: var(--q-unknown);">
+        <div class="lk-card-top">
+          <span class="lk-qlabel"><span class="dot"></span>아무도 모르는 나 <span class="src">· 아직 아무도</span></span>
+          <h3 class="lk-typename">즉흥 돌파형</h3>
+          <p class="lk-oneline"><span class="mod">생각보다 바로 움직이는</span> <span class="nick">송이</span>
+            <span class="lk-oneline-tag">카드 제목 = 한줄 정의 + 닉네임</span>
+          </p>
+        </div>
+        <div class="lk-adjs">
+          <span class="lk-adj">계획보다 감으로 감</span>
+          <span class="lk-adj">흐름 타며 해결</span>
+        </div>
+        <p class="lk-body">미리 다 짜기보다 눈앞의 흐름에 맞춰 움직일 때 힘이 나요. 시작은 가볍지만 진행하며 감을 잡고, 의외의 결과를 만들어내기 쉬워요.</p>
+        <div class="lk-imgblock">
+          <p class="h">이미지 연출 <span class="tag">2차 프롬프트 변수</span></p>
+          <dl class="lk-dl">
+            <dt>상황·감정</dt><dd>준비는 적지만 막상 움직이며 길을 찾아가는 가벼운 도전의 순간</dd>
+            <dt>시선</dt><dd>앞을 향해 빠르게 방향을 가늠하는 시선</dd>
+            <dt>포즈</dt><dd>몸을 살짝 앞으로 기울여 바로 출발하려는 자세</dd>
+            <dt>소품</dt><dd>간단한 지도 1, 작은 열쇠 1</dd>
+            <dt>배경</dt><dd>넓은 길 모퉁이, 큰 면 위주 단순 구성</dd>
+            <dt>조명·톤</dt><dd>선명한 아침빛, 파랑·노랑 대비로 경쾌하게</dd>
+          </dl>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="lk-spec">
+      <h3>카피 규격 (검수 기준)</h3>
+      <ul>
+        <li><b>한줄 정의</b> — 이름 앞 수식어. 관형형(<code>~하는 / ~한 / ~는</code>)으로 끝, 명사로 안 끝냄. 화면에선 <code>정의 + 닉네임</code>.</li>
+        <li><b>세부 유형 명</b> — 캐릭터명 느낌 명사구. 띄어쓰기 허용(예: “겁 없는 탐험가”).</li>
+        <li><b>세부 유형 본문</b> — 어미 <code>~요</code>체 통일, 공백 포함 <b>70~90자</b>.</li>
+        <li><b>형용사</b> — 칸마다 정확히 <b>2개</b>, 말맛 위주.</li>
+        <li><b>이미지 연출 6변수</b> — 캐릭터(흰 햄스터) 얼굴·체형은 고정, 바뀌는 건 상황·시선·포즈·소품·배경·조명뿐. 다른 인물·텍스트·반짝이 금지.</li>
+      </ul>
+    </div>
+
+    <details class="lk-appendix">
+      <summary>부록 — 답변별 추출 형용사 14건 (answerAdjectives)</summary>
+      <div class="lk-tablewrap">
+        <table class="lk-table">
+          <thead>
+            <tr><th>ID</th><th>응답자</th><th>형용사</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="id">1</td><td class="who">본인</td><td>유행 지나고 봐 · 신중한 관찰형</td></tr>
+            <tr><td class="id">2</td><td class="who">본인</td><td>상황 따라 조절 · 맞춰가는 편</td></tr>
+            <tr><td class="id">3</td><td class="who">본인</td><td>일단 시작부터 · 계획 없는 출발</td></tr>
+            <tr><td class="id">4</td><td class="who">본인</td><td>우왕좌왕 흔들림 · 우선순위 헷갈림</td></tr>
+            <tr><td class="id">5</td><td class="who">본인</td><td>떠밀리면 하는 · 앞에 서기 부담</td></tr>
+            <tr><td class="id">6</td><td class="who">본인</td><td>끝까지 남는 · 자리 지키기</td></tr>
+            <tr><td class="id">7</td><td class="who">본인</td><td>슬쩍 빠지기 · 핑계 대기</td></tr>
+            <tr><td class="id">8</td><td class="who">본인</td><td>쉽게 안 물러남 · 끝까지 버팀</td></tr>
+            <tr><td class="id">9</td><td class="who">친구1</td><td>분위기 띄우기 · 끝까지 함께</td></tr>
+            <tr><td class="id">10</td><td class="who">친구1</td><td>웬만하면 챙김 · 도와주기</td></tr>
+            <tr><td class="id">11</td><td class="who">친구1</td><td>관심 많음 · 천천히 지켜봄</td></tr>
+            <tr><td class="id">12</td><td class="who">친구2</td><td>야무지게 준비 · 미리 챙김</td></tr>
+            <tr><td class="id">13</td><td class="who">친구2</td><td>은근 즐김 · 발표 잘함</td></tr>
+            <tr><td class="id">14</td><td class="who">친구2</td><td>끝까지 밀어붙임 · 의견 강함</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <p class="lk-foot">
+      샘플 1건 · gpt-5.4-mini · 테스트 하네스(<code>_workspace/2026-07-04-prompt-test</code>)로 재현 가능.
+      비용은 텍스트 1콜 기준 추정치이며, 실제 결과는 여기에 <b>4컷 이미지 생성(gpt-image-2)</b>이 더해집니다.
+    </p>
+
+  </div>
+</div>

@@ -1,0 +1,6 @@
+submissionAnswerId: %d
+respondentLabel: %s
+submitterType: %s
+traitCode: %s
+question: %s
+answer: %s

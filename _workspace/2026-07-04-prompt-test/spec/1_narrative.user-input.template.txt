@@ -1,0 +1,8 @@
+expectedSubmissionAnswerIds:
+%s
+
+completed survey answers:
+- 각 입력 행은 서로 독립이다.
+- `submissionAnswerId`가 다른 행은 답변 내용이 비슷해도 절대 합치지 않는다.
+- `answerAdjectives`는 `expectedSubmissionAnswerIds`와 같은 개수, 같은 순서로 1:1 대응해야 한다.
+%s
