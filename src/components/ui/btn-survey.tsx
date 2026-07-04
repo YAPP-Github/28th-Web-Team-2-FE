@@ -5,7 +5,7 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 /**
- * BtnSurvey — 설문 보기 버튼 (350×64, radius 12px, 텍스트 좌측 정렬)
+ * BtnSurvey — 설문 보기 버튼 (너비 100%, 최소 높이 64px·두 줄 이상 확장, radius 12px, 텍스트 좌측 정렬)
  *
  * Figma 소스: fileKey TRXXVUvIwh8vh7FbBusXCO
  *   default   395:9851 — bg white, text gray-400, Figma px-[16px] → px-4
@@ -23,9 +23,9 @@ import { cn } from "@/lib/utils"
  */
 const btnSurveyVariants = cva(
   [
-    "inline-flex w-full shrink-0 items-center",
+    "inline-flex w-full shrink-0 items-center justify-start text-left",
     "rounded-field",         // --radius-field: 0.75rem (12px) — 신설 토큰
-    "h-16",                  // 64px
+    "min-h-16 py-3",         // 최소 64px — 두 줄 이상이면 자연스럽게 확장
     "font-sans font-medium text-body-16-medium",  // letter-spacing·line-height는 @theme --text-body-16-medium--* 자동 적용
     "transition-colors select-none outline-none",
     "focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2",
