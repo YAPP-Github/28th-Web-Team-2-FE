@@ -15,7 +15,6 @@ type FlipPhase = "opening" | "open" | "flipping" | "back";
 interface ResultCardModalProps {
   quadrantKey: QuadrantKey;
   frontLabel: string;
-  nickname: string;
   imageUrl: string | null;
   definitionKeyword: string | null;
   adjectiveKeywords: string[];
@@ -28,7 +27,6 @@ interface ResultCardModalProps {
 export function ResultCardModal({
   quadrantKey,
   frontLabel,
-  nickname,
   imageUrl,
   definitionKeyword,
   adjectiveKeywords,
@@ -160,8 +158,7 @@ export function ResultCardModal({
                 <div className="flex w-full flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <p className="text-head1-24 font-display1 text-gray-900">
-                      {definitionKeyword && `${definitionKeyword} `}
-                      <span className="text-gray-300">{nickname}</span>
+                      {definitionKeyword}
                     </p>
                     {adjectiveKeywords.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">

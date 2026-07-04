@@ -336,7 +336,6 @@ export function ResultView({
             key={selectedKey}
             quadrantKey={selectedKey}
             frontLabel={QUADRANT_FRONT_LABEL[selectedKey]}
-            nickname={nickname}
             imageUrl={selectedData?.imageUrl ?? null}
             definitionKeyword={selectedData?.definitionKeyword ?? null}
             adjectiveKeywords={selectedData?.adjectiveKeywords ?? []}

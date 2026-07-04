@@ -59,7 +59,7 @@ function normalizeSurveyResult(raw: SurveyResultRawResponse): SurveyResultRespon
   return {
     surveyCode: raw.surveyCode,
     resultStatus: raw.resultStatus,
-    overallKeyword: raw.overallKeyword,
+    overallKeyword: raw.overall?.keyword ?? raw.overallKeyword ?? null,
     overallAnalysisTitle: raw.overall?.analysisTitle ?? raw.overallAnalysisTitle ?? null,
     overallAnalysis: raw.overallAnalysis,
     actionTip: raw.actionTip,
