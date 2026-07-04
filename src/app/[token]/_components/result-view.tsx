@@ -8,7 +8,6 @@ import { useGetSurveyResultAPI } from "@/apis/survey/queries";
 import { CenteredScreen } from "@/components/layout/centered-screen";
 import { Cta } from "@/components/ui/cta";
 import { CtaSmall } from "@/components/ui/cta-small";
-import { DownloadIcon } from "@/components/ui/icons/download";
 import { Logo } from "@/components/ui/logo";
 import { shareKakao } from "@/lib/share";
 import { usePreloadImages } from "@/lib/preload-images";
@@ -162,7 +161,7 @@ export function ResultView({
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(currentUrl());
-      showToast("링크가 복사됐어요!");
+      showToast("링크 복사 완료!");
     } catch {
       showToast("복사에 실패했어요. 링크를 길게 눌러 복사해주세요");
     }
@@ -178,7 +177,7 @@ export function ResultView({
           ? `${window.location.origin}/assets/og-image.png`
           : "/assets/og-image.png",
     });
-    showToast(result === "shared" ? "카카오톡 공유를 열었어요" : "링크를 복사했어요");
+    showToast(result === "shared" ? "카카오톡 공유 완료!" : "링크 복사 완료!");
   };
 
   // ── 게이트 화면 (phase === 'gate') — Figma 노드 414:13565 / 589:4060 ────────
@@ -237,15 +236,6 @@ export function ResultView({
       {/* ── 헤더 (Figma top 44, h60) ─────────────────────────────────────── */}
       <div className="flex items-center justify-between px-5 pt-4">
         <Logo size="sm" />
-        {/* 다운받기 pill 버튼 — placeholder(기능 미구현, 디자이너 에셋 대기) */}
-        <button
-          type="button"
-          aria-label="이미지 다운받기"
-          className="flex items-center gap-0.5 rounded-full border border-gray-100 bg-white py-2 pl-3 pr-4"
-        >
-          <DownloadIcon className="size-6 text-gray-900" />
-          <span className="text-body-14-medium text-gray-900">다운받기</span>
-        </button>
       </div>
 
       {/* ── 4cuts 합성 카드 + 디스클레이머 (Figma 627:4706, gap 8) ────────── */}
