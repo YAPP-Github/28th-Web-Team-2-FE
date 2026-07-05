@@ -129,22 +129,6 @@ export default function TokenPage() {
     );
   }
 
-  // 주인공 + 시간 만료 + 미달: 재시도 유도
-  // NOTE: resultStatus가 별도의 "미달" enum이 없으므로 remainingSeconds + peerCount로 판단
-  if (
-    owner &&
-    status.remainingSecondsToResultOpen <= 0 &&
-    status.peerSubmissionCount < status.requiredPeerSubmissionCount
-  ) {
-    return (
-      <RetryView
-        nickname={status.userNickname}
-        respondentCount={status.peerSubmissionCount}
-        onRetry={() => router.push("/")}
-      />
-    );
-  }
-
   // 그 외 (WAITING_SELF_RESPONSE / COLLECTING_PEER_RESPONSES / WAITING_RESULT_OPEN_TIME):
   // 주인공이면 공유 뷰, 참여자면 설문 뷰
   if (owner) {
