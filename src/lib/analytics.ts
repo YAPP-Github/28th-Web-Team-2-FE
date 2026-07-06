@@ -8,16 +8,25 @@ let initialized = false;
 
 /** 앱 최초 마운트 시 1회 호출 (providers.tsx). */
 export function initAnalytics(): void {
-  if (initialized || !MIXPANEL_TOKEN) return;
+  if (initialized) return;
+  if (!MIXPANEL_TOKEN) {
+    console.warn("[analytics] NEXT_PUBLIC_MIXPANEL_TOKEN이 없어 믹스패널을 초기화하지 않습니다.");
+    return;
+  }
   mixpanel.init(MIXPANEL_TOKEN, {
     autocapture: true,
     record_sessions_percent: 100,
   });
   initialized = true;
+  console.info("[analytics] 믹스패널 초기화 완료");
 }
 
 /** 커스텀 이벤트 트래킹. 이벤트명 목록은 각 페이지 주석 참조. */
 export function track(event: string, properties?: Record<string, unknown>): void {
-  if (!initialized) return;
+  if (!initialized) {
+    console.warn(`[analytics] 초기화 전이라 이벤트를 건너뜁니다: ${event}`);
+    return;
+  }
   mixpanel.track(event, properties);
+  console.info(`[analytics] track: ${event}`, properties ?? {});
 }
