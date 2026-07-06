@@ -9,6 +9,7 @@ import { CenteredScreen } from "@/components/layout/centered-screen";
 import { Cta } from "@/components/ui/cta";
 import { CtaSmall } from "@/components/ui/cta-small";
 import { Logo } from "@/components/ui/logo";
+import { track } from "@/lib/analytics";
 import { shareKakao } from "@/lib/share";
 import { usePreloadImages } from "@/lib/preload-images";
 import {
@@ -83,6 +84,11 @@ export function ResultView({
       if (timer.current !== null) window.clearTimeout(timer.current);
     };
   }, []);
+
+  // 결과 본문 도달 (KPI: 결과 도달→재공유 분모)
+  useEffect(() => {
+    if (phase === "body") track("result_view");
+  }, [phase]);
 
   // body 진입 1초 후 힌트 노출(1회성)
   useEffect(() => {
@@ -159,6 +165,7 @@ export function ResultView({
     typeof window !== "undefined" ? window.location.href : "";
 
   const handleCopy = async () => {
+    track("result_reshare_click", { method: "copy" });
     try {
       await navigator.clipboard.writeText(currentUrl());
       showToast("링크 복사 완료!");
@@ -168,6 +175,7 @@ export function ResultView({
   };
 
   const handleKakao = async () => {
+    track("result_reshare_click", { method: "kakao" });
     const result = await shareKakao({
       link: currentUrl(),
       title: `${nickname}님의 인생네컷이 나왔어요!`,

@@ -11,6 +11,7 @@ import { CenteredScreen } from "@/components/layout/centered-screen";
 import { SurveyRunner } from "@/components/survey/survey-runner";
 import { Cta } from "@/components/ui/cta";
 import { Logo } from "@/components/ui/logo";
+import { track } from "@/lib/analytics";
 import { markSurveyDone, markSurveyStarted } from "@/lib/local-session";
 import { usePreloadImages } from "@/lib/preload-images";
 
@@ -49,6 +50,7 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
   // 바뀌어도 설문 도중 결과 화면으로 튕기지 않게 하는 가드(page.tsx respondentInProgress).
   useEffect(() => {
     markSurveyStarted(surveyCode);
+    track("respond_view"); // KPI: 참여자 설문 완료율 분모
   }, [surveyCode]);
 
   useEffect(() => {
@@ -163,6 +165,7 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
         { submissionId, answers },
         {
           onSuccess: () => {
+            track("respond_complete");
             markSurveyDone(surveyCode);
             setStep("done");
           },
@@ -183,6 +186,9 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
       <SurveyRunner
         questions={questions}
         onComplete={handleComplete}
+        onQuestionView={(index, total) =>
+          track(`respond_q${index + 1}`, { questionIndex: index + 1, total })
+        }
       />
     );
   }
@@ -199,7 +205,9 @@ export function RespondentView({ surveyCode, nickname }: RespondentViewProps) {
           </p>
           {/* Figma 주석: "클릭 시 F01_온보딩 이동" → href="/" (랜딩, product-spec #5 바이럴 루프) */}
           <Cta asChild>
-            <Link href="/">나도 만들기</Link>
+            <Link href="/" onClick={() => track("respond_to_create_click")}>
+              나도 만들기
+            </Link>
           </Cta>
         </div>
       }

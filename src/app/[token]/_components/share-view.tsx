@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CtaSmall } from "@/components/ui/cta-small";
 import { LinkIcon } from "@/components/ui/icons/link";
 import { Logo } from "@/components/ui/logo";
+import { track } from "@/lib/analytics";
 import { shareKakao } from "@/lib/share";
 
 // 공유 관리 뷰 (product-spec #4 · Figma F04 node 1212:6382) — GUI 2차 전경 정합.
@@ -80,6 +81,7 @@ export function ShareView({ surveyCode, respondentCount }: ShareViewProps) {
   };
 
   const handleCopy = async () => {
+    track("link_copy");
     const isAndroid = /android/i.test(navigator.userAgent);
     try {
       await navigator.clipboard.writeText(link);
@@ -92,6 +94,7 @@ export function ShareView({ surveyCode, respondentCount }: ShareViewProps) {
   // 카카오 SDK 공유(feed). 인앱브라우저 포함 정식 경로. 키/SDK 실패 시 shareKakao 내부에서 링크 복사 fallback.
   // ※ 동작 조건: NEXT_PUBLIC_KAKAO_JS_KEY(운영 앱) + 카카오 콘솔에 웹 도메인(looky.my·localhost) 등록.
   const handleKakaoShare = async () => {
+    track("share_kakao_click");
     const result = await shareKakao({
       link,
       title: "친구들이 본 나는 어떤 모습일까?",

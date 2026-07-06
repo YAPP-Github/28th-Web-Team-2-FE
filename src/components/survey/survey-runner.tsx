@@ -15,6 +15,8 @@ interface SurveyRunnerProps {
   onComplete: (answers: AnswerEntry[]) => void;
   /** 첫 문항에서 뒤로 (없으면 ← 숨김) */
   onBack?: () => void;
+  /** 문항이 화면에 표시될 때마다(문항 이동 포함) 호출 — 이탈 구간 트래킹용 */
+  onQuestionView?: (questionIndex: number, total: number) => void;
 }
 
 // 본인·참여자 공용 설문 진행기 (product-spec #3·#5 · Figma F03 node 414:13343).
@@ -24,12 +26,24 @@ export function SurveyRunner({
   questions,
   onComplete,
   onBack,
+  onQuestionView,
 }: SurveyRunnerProps) {
   const [index, setIndex] = useState(0);
   // questionId → 선택된 answerOptionId
   const [selected, setSelected] = useState<Record<number, number>>({});
   const [isPending, setIsPending] = useState(false);
   const timer = useRef<number | null>(null);
+
+  // ref로 최신 콜백을 들고 있어 index 변화에만 반응(콜백 재생성마다 재발화 방지)
+  const onQuestionViewRef = useRef(onQuestionView);
+  useEffect(() => {
+    onQuestionViewRef.current = onQuestionView;
+  });
+
+  useEffect(() => {
+    if (questions.length === 0) return;
+    onQuestionViewRef.current?.(index, questions.length);
+  }, [index, questions.length]);
 
   // ── 브라우저/시스템 back → 전 문항 (popstate 가로채기) ──────────────────────
   // 8문항이 한 페이지 안 index state라 history엔 문항 기록이 없다 → 그냥 두면 back 한 번에

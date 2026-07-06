@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type MouseEvent, useState } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
 
 import { isApiError } from "@/apis/error";
 import { useCreateSurveyAPI } from "@/apis/survey/mutations";
 import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
+import { track } from "@/lib/analytics";
 import { saveSession } from "@/lib/local-session";
 import { Cta } from "@/components/ui/cta";
 import { Logo } from "@/components/ui/logo";
@@ -29,9 +30,15 @@ export default function NicknamePage() {
   const tooLong = trimmed.length > MAX_LEN;
   const canSubmit = trimmed.length > 0 && !tooLong && !isPending;
 
+  // 온보딩 페이지 유입 (product-spec #2 · KPI: 온보딩 페이지 유입수)
+  useEffect(() => {
+    track("onboarding_view");
+  }, []);
+
   const handleSubmit = () => {
     if (!canSubmit) return;
     setServerError(null);
+    track("selfsurvey_start_click"); // KPI: 자기 설문 시작하기 클릭 수
 
     mutate(
       { userNickname: trimmed },

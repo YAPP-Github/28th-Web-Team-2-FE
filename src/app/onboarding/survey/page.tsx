@@ -8,6 +8,7 @@ import { SELF_SUBMISSION_MUTATION_KEY, useStartSubmissionAPI, useSubmitAnswersAP
 import { isApiError } from "@/apis/error";
 import type { AnswerEntry, SubmissionStartedResponse } from "@/apis/survey/types";
 import { SurveyRunner } from "@/components/survey/survey-runner";
+import { track } from "@/lib/analytics";
 import { readSession } from "@/lib/local-session";
 import { usePreloadImages } from "@/lib/preload-images";
 import { clearSelfSurveyCache, isSelfSurveyDone, markSelfSurveyDone, readSelfSurveyCache, saveSelfSurveyCache } from "@/lib/self-survey-cache";
@@ -161,6 +162,7 @@ export default function SelfSurveyPage() {
       },
       {
         onSuccess: () => {
+          track("selfsurvey_complete");
           clearSelfSurveyCache();
           const code = session?.surveyCode;
           if (code) {
@@ -188,6 +190,9 @@ export default function SelfSurveyPage() {
       subjectLabel="나에 대해"
       onComplete={handleComplete}
       onBack={() => router.back()}
+      onQuestionView={(index, total) =>
+        track(`selfsurvey_q${index + 1}`, { questionIndex: index + 1, total })
+      }
     />
   );
 }
