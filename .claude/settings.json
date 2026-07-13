@@ -12,5 +12,19 @@
       "Bash(git switch:*)",
       "Bash(git rebase:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"$(git branch --show-current)\" = \"main\" ]; then out=$(GIT_TERMINAL_PROMPT=0 git pull --rebase --autostash origin main 2>&1); if [ $? -eq 0 ]; then echo \"[세션 시작 자동 pull] $(echo \"$out\" | tail -1)\"; else echo \"[세션 시작 자동 pull] ⚠️ 실패 — 충돌/네트워크 확인 필요: $(echo \"$out\" | tail -1)\"; fi; else echo \"[세션 시작] 브랜치 $(git branch --show-current) — 자동 pull은 main에서만 동작\"; fi",
+            "timeout": 45,
+            "statusMessage": "main 최신화 중 (자동 pull)"
+          }
+        ]
+      }
+    ]
   }
 }
