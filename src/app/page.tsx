@@ -1,7 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 
 import { CenteredScreen } from "@/components/layout/centered-screen";
+import { track } from "@/lib/analytics";
 import { Cta } from "@/components/ui/cta";
 import { Logo } from "@/components/ui/logo";
 
@@ -9,11 +13,18 @@ import { Logo } from "@/components/ui/logo";
 // 공통 골격(px-5·상하 스페이서·BgCloud)은 CenteredScreen이 담당. 여기선 콘텐츠+CTA만.
 // 콘텐츠 gap(Figma 오토레이아웃): 로고↔제목 32(gap-8), 제목↔캐릭터 84(gap-21).
 export default function Home() {
+  // 랜딩 진입 (product-spec #1 · KPI: 채널별 유입수 — utm은 providers.tsx captureUtm 참조)
+  useEffect(() => {
+    track("landing_view");
+  }, []);
+
   return (
     <CenteredScreen
       footer={
         <Cta asChild>
-          <Link href="/onboarding/nickname">시작하기</Link>
+          <Link href="/onboarding/nickname" onClick={() => track("start_click")}>
+            시작하기
+          </Link>
         </Cta>
       }
     >
